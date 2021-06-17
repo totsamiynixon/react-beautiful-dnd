@@ -38,6 +38,7 @@ const getScrollableDroppableOver = (
     getScrollableDroppables(droppables),
     (droppable: DroppableDimension): boolean => {
       invariant(droppable.frame, 'Invalid result');
+      // perhaps here we could do enumaration through array of frames per each scrollable parent
       return isPositionInFrame(droppable.frame.pageMarginBox)(target);
     },
   );

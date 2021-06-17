@@ -51,8 +51,14 @@ export default ({
   axis,
   frame,
 }: Args): DroppableSubject => {
+  //calculate here page offset by frame scroll
+  //looks like page is dimensions of the container
+  //so we are calculating container displacement here
   const scrolled: Spacing = scroll(page.marginBox, frame);
+  //add placeholder displacement if placeholder exists
   const increased: Spacing = increase(scrolled, axis, withPlaceholder);
+  //calculate here active area position inside frame
+  //other words displacement of page in relation to frame
   const clipped: ?Rect = clip(increased, frame);
 
   return {

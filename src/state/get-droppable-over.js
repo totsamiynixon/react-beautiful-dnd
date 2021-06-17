@@ -89,6 +89,7 @@ export default function getDroppableOver({
         return false;
       }
 
+      // looks like subject.active is resposible for visibility of droppable
       // Cannot be a candidate when there is no visible area
       const active: ?Rect = item.subject.active;
       if (!active) {

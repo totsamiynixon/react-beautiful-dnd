@@ -48,6 +48,8 @@ const getClient = (
   // Creating the paddingBox based on scrollWidth / scrollTop
   // scrollWidth / scrollHeight are based on the paddingBox of an element
   // https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollHeight
+
+  //looks like here offsetOf
   const top: number = base.paddingBox.top - closestScrollable.scrollTop;
   const left: number = base.paddingBox.left - closestScrollable.scrollLeft;
   const bottom: number = top + closestScrollable.scrollHeight;
@@ -100,6 +102,11 @@ export default ({
   isCombineEnabled,
   shouldClipSubject,
 }: Args): DroppableDimension => {
+
+  //looks like here dimensions recalculared
+  //what if i will run this function to recalculate dimension for each scrollable
+  //then i need to run function that calculate subject for all
+  //then i need to rewrite visibility algorythms to calculate visibility of element in every single scroll container
   const closestScrollable: ?Element = env.closestScrollable;
   const client: BoxModel = getClient(ref, closestScrollable);
   const page: BoxModel = withScroll(client, windowScroll);

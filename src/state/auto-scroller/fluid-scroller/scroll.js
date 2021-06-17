@@ -20,6 +20,8 @@ type Args = {|
   scrollDroppable: (id: DroppableId, scroll: Position) => void,
 |};
 
+
+//looks like here necessary of scroll is detected and trigger scroll of droppable 
 export default ({
   state,
   dragStartTime,
