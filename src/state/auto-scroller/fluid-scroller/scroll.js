@@ -6,6 +6,8 @@ import type {
   DraggableDimension,
   DroppableDimension,
   Viewport,
+  ScrollableId,
+  DroppableScrollChange,
 } from '../../../types';
 import getBestScrollableDroppable from './get-best-scrollable-droppable';
 import whatIsDraggedOver from '../../droppable/what-is-dragged-over';
@@ -17,11 +19,13 @@ type Args = {|
   dragStartTime: number,
   shouldUseTimeDampening: boolean,
   scrollWindow: (scroll: Position) => void,
-  scrollDroppable: (id: DroppableId, scroll: Position) => void,
+  scrollDroppable: (
+    id: DroppableId,
+    scrollableId: ScrollableId,
+    scroll: Position,
+  ) => void,
 |};
 
-
-//looks like here necessary of scroll is detected and trigger scroll of droppable 
 export default ({
   state,
   dragStartTime,
@@ -60,7 +64,7 @@ export default ({
     return;
   }
 
-  const change: ?Position = getDroppableScrollChange({
+  const change: ?DroppableScrollChange = getDroppableScrollChange({
     dragStartTime,
     droppable,
     subject,
@@ -69,6 +73,10 @@ export default ({
   });
 
   if (change) {
-    scrollDroppable(droppable.descriptor.id, change);
+    scrollDroppable(
+      droppable.descriptor.id,
+      change.scrollableId,
+      change.scroll,
+    );
   }
 };

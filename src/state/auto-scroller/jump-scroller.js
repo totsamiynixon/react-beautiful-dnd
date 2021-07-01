@@ -15,10 +15,16 @@ import type {
   Viewport,
   DraggingState,
   DroppableId,
+  ScrollableId,
+  DroppableOverlap,
 } from '../../types';
 
 type Args = {|
-  scrollDroppable: (id: DroppableId, change: Position) => void,
+  scrollDroppable: (
+    id: DroppableId,
+    scrollableId: ScrollableId,
+    change: Position,
+  ) => void,
   scrollWindow: (offset: Position) => void,
   move: (args: MoveArgs) => mixed,
 |};
@@ -46,18 +52,34 @@ export default ({
       return change;
     }
 
-    const overlap: ?Position = getDroppableOverlap(droppable, change);
+    const droppableOverlap: ?DroppableOverlap = getDroppableOverlap(
+      droppable,
+      change,
+    );
 
     // Droppable can absorb the entire change
-    if (!overlap) {
-      scrollDroppable(droppable.descriptor.id, change);
+    // TODO: check what it is for
+    if (!droppableOverlap) {
+      scrollDroppable(
+        droppable.descriptor.id,
+        droppableOverlap.scrollableId,
+        change,
+      );
       return null;
     }
 
     // Droppable can only absorb a part of the change
-    const whatTheDroppableCanScroll: Position = subtract(change, overlap);
-    scrollDroppable(droppable.descriptor.id, whatTheDroppableCanScroll);
+    const whatTheDroppableCanScroll: Position = subtract(
+      change,
+      droppableOverlap.overlap,
+    );
+    scrollDroppable(
+      droppable.descriptor.id,
+      droppableOverlap.scrollableId,
+      whatTheDroppableCanScroll,
+    );
 
+    // TODO: check what it is for
     const remainder: Position = subtract(change, whatTheDroppableCanScroll);
     return remainder;
   };

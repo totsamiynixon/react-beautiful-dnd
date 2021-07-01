@@ -6,7 +6,7 @@ import type {
   DroppableDimension,
   DraggableDimension,
   DraggableDimensionMap,
-  Scrollable,
+  ScrollableMap,
   DroppableSubject,
   PlaceholderInSubject,
 } from '../../types';
@@ -65,7 +65,7 @@ export const addPlaceholder = (
   draggable: DraggableDimension,
   draggables: DraggableDimensionMap,
 ): DroppableDimension => {
-  const frame: ?Scrollable = droppable.frame;
+  const frame: ?ScrollableMap = droppable.frame;
 
   invariant(
     !isHomeOf(draggable, droppable),
@@ -88,13 +88,28 @@ export const addPlaceholder = (
     draggables,
   );
 
+  const closestFrameScrollableId = Object.keys(droppable.frame)[
+    // eslint-disable-next-line es5/no-es6-methods
+    Object.keys(droppable.frame).length - 1
+  ];
+
+  const closestFrame = droppable.frame[closestFrameScrollableId];
+  /*   ? // eslint-disable-next-line es5/no-es6-methods
+      Object.values(droppable.frame)[
+        // eslint-disable-next-line es5/no-es6-methods
+        Object.values(droppable.frame).length - 1
+      ]
+    : null; // get here scrollable that is parent of a droppable?
+ */
+  // TODO: refactor that
   const added: PlaceholderInSubject = {
     placeholderSize,
     increasedBy: requiredGrowth,
-    oldFrameMaxScroll: droppable.frame ? droppable.frame.scroll.max : null,
+    oldFrameMaxScroll: closestFrame,
   };
 
-  if (!frame) {
+  // TODO: check how it works
+  if (!closestFrame) {
     const subject: DroppableSubject = getSubject({
       page: droppable.subject.page,
       withPlaceholder: added,
@@ -108,10 +123,13 @@ export const addPlaceholder = (
   }
 
   const maxScroll: Position = requiredGrowth
-    ? add(frame.scroll.max, requiredGrowth)
-    : frame.scroll.max;
+    ? add(closestFrame.scroll.max, requiredGrowth)
+    : closestFrame.scroll.max;
 
-  const newFrame: Scrollable = withMaxScroll(frame, maxScroll);
+  const newFrame: ScrollableMap = {
+    ...frame,
+    [closestFrameScrollableId]: withMaxScroll(closestFrame, maxScroll),
+  };
 
   const subject: DroppableSubject = getSubject({
     page: droppable.subject.page,
@@ -135,9 +153,17 @@ export const removePlaceholder = (
     'Cannot remove placeholder form subject when there was none',
   );
 
-  const frame: ?Scrollable = droppable.frame;
+  const frame: ?ScrollableMap = droppable.frame;
 
-  if (!frame) {
+  const closestFrameScrollableId = Object.keys(frame)[
+    // eslint-disable-next-line es5/no-es6-methods
+    Object.keys(frame).length - 1
+  ];
+
+  const closestFrame = droppable.frame[closestFrameScrollableId];
+
+  // TODO: check how it works
+  if (true) {
     const subject: DroppableSubject = getSubject({
       page: droppable.subject.page,
       axis: droppable.axis,
@@ -157,7 +183,10 @@ export const removePlaceholder = (
     'Expected droppable with frame to have old max frame scroll when removing placeholder',
   );
 
-  const newFrame: Scrollable = withMaxScroll(frame, oldMaxScroll);
+  const newFrame: ScrollableMap = {
+    ...frame,
+    [closestFrameScrollableId]: withMaxScroll(closestFrame, oldMaxScroll),
+  };
 
   const subject: DroppableSubject = getSubject({
     page: droppable.subject.page,

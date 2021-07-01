@@ -37,9 +37,21 @@ const getScrollableDroppableOver = (
   const maybe: ?DroppableDimension = find(
     getScrollableDroppables(droppables),
     (droppable: DroppableDimension): boolean => {
-      invariant(droppable.frame, 'Invalid result');
+      const frame = droppable.frame;
+      invariant(frame, 'Invalid result');
       // perhaps here we could do enumaration through array of frames per each scrollable parent
-      return isPositionInFrame(droppable.frame.pageMarginBox)(target);
+      // perhaps we need to go there from the higher parent to the lower child
+      for (const scrollableId in frame) {
+        if (Object.prototype.hasOwnProperty.call(frame, scrollableId)) {
+          const scrollable = frame[scrollableId];
+          if (isPositionInFrame(scrollable.pageMarginBox)(target)) {
+            return true;
+          }
+        }
+      }
+
+      // TODO: check how to refactor that
+      return false;
     },
   );
 

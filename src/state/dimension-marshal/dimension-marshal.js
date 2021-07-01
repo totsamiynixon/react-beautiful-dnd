@@ -108,7 +108,11 @@ export default (registry: Registry, callbacks: Callbacks) => {
     callbacks.updateDroppableIsCombineEnabled({ id, isCombineEnabled });
   };
 
-  const updateDroppableScroll = (id: DroppableId, newScroll: Position) => {
+  const updateDroppableScroll = (
+    id: DroppableId,
+    scrollableId: ScrollableId,
+    newScroll: Position,
+  ) => {
     // no need to update the application state if a collection is not occurring
     if (!collection) {
       return;
@@ -119,14 +123,18 @@ export default (registry: Registry, callbacks: Callbacks) => {
       `Cannot update the scroll on Droppable ${id} as it is not registered`,
     );
 
-    callbacks.updateDroppableScroll({ id, newScroll });
+    callbacks.updateDroppableScroll({ id, scrollableId, newScroll });
   };
 
-  const scrollDroppable = (id: DroppableId, change: Position) => {
+  const scrollDroppable = (
+    id: DroppableId,
+    scrollableId: ScrollableId,
+    change: Position,
+  ) => {
     if (!collection) {
       return;
     }
-    registry.droppable.getById(id).callbacks.scroll(change);
+    registry.droppable.getById(id).callbacks.scroll(change, scrollableId);
   };
 
   const stopPublishing = () => {

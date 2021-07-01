@@ -1,8 +1,10 @@
 // @flow
 import getClosestScrollable from './get-closest-scrollable';
 
+export type EnvScrollalbeIdElementMap = { [key: ScrollableId]: Element };
+
 export type Env = {|
-  closestScrollable: ?Element,
+  scrollables: EnvScrollalbeIdElementMap,
   isFixedOnPage: boolean,
 |};
 
@@ -20,12 +22,29 @@ const getIsFixed = (el: ?Element): boolean => {
   return getIsFixed(el.parentElement);
 };
 
+const generateUniqueId = () =>
+  `scrollable_${Math.random().toString(36).substr(2, 9)}`;
+
 export default (start: Element): Env => {
-  const closestScrollable: ?Element = getClosestScrollable(start);
-  const isFixedOnPage: boolean = getIsFixed(start);
+  const scrollables: EnvScrollalbeIdElementMap = {};
+  const closestCrollables = (element: Element) => {
+    const closestScrollable: ?Element = getClosestScrollable(element);
+    if (!closestScrollable) {
+      return;
+    }
+    const uniqueId = generateUniqueId();
+    scrollables[uniqueId] = closestScrollable;
+    if (closestScrollable && closestScrollable.parentElement) {
+      closestCrollables(closestScrollable.parentElement);
+    }
+  };
+  closestCrollables(start);
+  const isFixedOnPage: boolean =
+    // eslint-disable-next-line es5/no-es6-methods
+    Object.values(scrollables).filter((e) => getIsFixed(e)).length > 0;
 
   return {
-    closestScrollable,
+    scrollables,
     isFixedOnPage,
   };
 };

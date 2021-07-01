@@ -1,5 +1,5 @@
 // @flow
-import { type Position, type Spacing, type Rect } from 'css-box-model';
+import { type Spacing, type Rect } from 'css-box-model';
 import type { DroppableDimension } from '../../types';
 import isPartiallyVisibleThroughFrame from './is-partially-visible-through-frame';
 import isTotallyVisibleThroughFrame from './is-totally-visible-through-frame';
@@ -29,11 +29,21 @@ const getDroppableDisplaced = (
   target: Spacing,
   destination: DroppableDimension,
 ): Spacing => {
-  const displacement: Position = destination.frame
-    ? destination.frame.scroll.diff.displacement
-    : origin;
+  let currentTarget = target;
 
-  return offsetByPosition(target, displacement);
+  const frame = destination.frame;
+
+  for (const scrollableId in frame) {
+    if (Object.prototype.hasOwnProperty.call(frame, scrollableId)) {
+      const scrollable = frame[scrollableId];
+      currentTarget = offsetByPosition(
+        currentTarget,
+        scrollable.scroll.diff.displacement,
+      );
+    }
+  }
+
+  return Object.keys(frame).length > 0 ? currentTarget : origin;
 };
 
 const isVisibleInDroppable = (

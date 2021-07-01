@@ -9,5 +9,14 @@ export default (droppable: DroppableDimension, point: Position): Position => {
     return point;
   }
 
-  return add(point, frame.scroll.diff.displacement);
+  let current = point;
+
+  for (const scrollableId in frame) {
+    if (Object.prototype.hasOwnProperty.call(frame, scrollableId)) {
+      const scrollable: Scrollable = frame[scrollableId];
+      current = add(current, scrollable.scroll.diff.displacement);
+    }
+  }
+
+  return current;
 };

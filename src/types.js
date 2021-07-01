@@ -4,7 +4,7 @@ import type { BoxModel, Rect, Position } from 'css-box-model';
 export type Id = string;
 export type DraggableId = Id;
 export type DroppableId = Id;
-export type DroppableScrollContainerId = Id;
+export type ScrollableId = Id;
 export type TypeId = Id;
 export type ContextId = Id;
 export type ElementId = Id;
@@ -111,6 +111,18 @@ export type Scrollable = {|
   scroll: ScrollDetails,
 |};
 
+export type ScrollableMap = { [key: ScrollableId]: Scrollable };
+
+export type DroppableOverlap = {|
+  scrollableId: ScrollableId,
+  overlap: Position,
+|};
+
+export type DroppableScrollChange = {|
+  scrollableId: ScrollableId,
+  scroll: Position,
+|};
+
 export type PlaceholderInSubject = {|
   // might not actually be increased by
   // placeholder if there is no required space
@@ -133,15 +145,7 @@ export type DroppableSubject = {|
   // The subject will be null if the hit area is completely empty
   active: ?Rect,
 |};
-export type DroppableScrollContainer = {|
-  frame: Scrollable,
-  // what is visible through the frame
-  subject: DroppableSubject,
-|};
 
-export type DroppableScrollContainerMap = {
-  [key: DroppableScrollContainerId]: DroppableScrollContainer,
-};
 
 export type DroppableDimension = {|
   descriptor: DroppableDescriptor,
@@ -154,7 +158,10 @@ export type DroppableDimension = {|
   isFixedOnPage: boolean,
   // relative to the page
   page: BoxModel,
-  scrollables: DroppableScrollContainerMap,
+  // The container of the droppable
+  frame: ?ScrollableMap,
+  // what is visible through the frame
+  subject: DroppableSubject,
 |};
 export type DraggableLocation = {|
   droppableId: DroppableId,

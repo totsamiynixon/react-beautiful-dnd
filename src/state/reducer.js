@@ -55,7 +55,7 @@ const postDroppableChange = (
   });
 };
 
-function removeScrollJumpRequest(state: State): State {
+function removeScrollJumpRequest (state: State): State {
   if (state.isDragging && state.movementMode === 'SNAP') {
     return {
       // will be overwritten by spread
@@ -224,7 +224,7 @@ export default (state: State = idle, action: Action): State => {
       `${action.type} not permitted in phase ${state.phase}`,
     );
 
-    const { id, newScroll } = action.payload;
+    const { id, scrollableId, newScroll } = action.payload;
     const target: ?DroppableDimension = state.dimensions.droppables[id];
 
     // This is possible if a droppable has been asked to watch scroll but
@@ -233,7 +233,11 @@ export default (state: State = idle, action: Action): State => {
       return state;
     }
 
-    const scrolled: DroppableDimension = scrollDroppable(target, newScroll);
+    const scrolled: DroppableDimension = scrollDroppable(
+      target,
+      scrollableId,
+      newScroll,
+    );
     return postDroppableChange(state, scrolled, false);
   }
 

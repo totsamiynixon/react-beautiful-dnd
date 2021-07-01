@@ -4,7 +4,8 @@ import type {
   Axis,
   DroppableDimension,
   DroppableDescriptor,
-  Scrollable,
+  ScrollableMap,
+  ScrollableId,
   DroppableSubject,
   ScrollSize,
 } from '../../types';
@@ -21,6 +22,8 @@ export type Closest = {|
   shouldClipSubject: boolean,
 |};
 
+export type ClosestScrollableMap = { [key: ScrollableId]: Closest };
+
 type Args = {|
   descriptor: DroppableDescriptor,
   isEnabled: boolean,
@@ -30,7 +33,7 @@ type Args = {|
   client: BoxModel,
   // is null when in a fixed container
   page: BoxModel,
-  closest?: ?Closest,
+  closestMap?: ?ClosestScrollableMap,
 |};
 
 export default ({
@@ -41,39 +44,49 @@ export default ({
   direction,
   client,
   page,
-  closest,
+  closestMap,
 }: Args): DroppableDimension => {
-  const frame: ?Scrollable = (() => {
-    if (!closest) {
+  const frame: ?ScrollableMap = (() => {
+    if (!closestMap) {
       return null;
     }
 
-    const { scrollSize, client: frameClient } = closest;
+    const scrollableMap = {};
 
-    // scrollHeight and scrollWidth are based on the padding box
-    // https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollHeight
-    const maxScroll: Position = getMaxScroll({
-      scrollHeight: scrollSize.scrollHeight,
-      scrollWidth: scrollSize.scrollWidth,
-      height: frameClient.paddingBox.height,
-      width: frameClient.paddingBox.width,
-    });
+    // TODO: refactor that
+    for (const scrollableId in closestMap) {
+      if (Object.prototype.hasOwnProperty.call(closestMap, scrollableId)) {
+        const closest = closestMap[scrollableId];
+        const { scrollSize, client: frameClient } = closest;
 
-    return {
-      pageMarginBox: closest.page.marginBox,
-      frameClient,
-      scrollSize,
-      shouldClipSubject: closest.shouldClipSubject,
-      scroll: {
-        initial: closest.scroll,
-        current: closest.scroll,
-        max: maxScroll,
-        diff: {
-          value: origin,
-          displacement: origin,
-        },
-      },
-    };
+        // scrollHeight and scrollWidth are based on the padding box
+        // https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollHeight
+        const maxScroll: Position = getMaxScroll({
+          scrollHeight: scrollSize.scrollHeight,
+          scrollWidth: scrollSize.scrollWidth,
+          height: frameClient.paddingBox.height,
+          width: frameClient.paddingBox.width,
+        });
+
+        scrollableMap[scrollableId] = {
+          pageMarginBox: closest.page.marginBox,
+          frameClient,
+          scrollSize,
+          shouldClipSubject: closest.shouldClipSubject,
+          scroll: {
+            initial: closest.scroll,
+            current: closest.scroll,
+            max: maxScroll,
+            diff: {
+              value: origin,
+              displacement: origin,
+            },
+          },
+        };
+      }
+    }
+
+    return scrollableMap;
   })();
 
   const axis: Axis = direction === 'vertical' ? vertical : horizontal;

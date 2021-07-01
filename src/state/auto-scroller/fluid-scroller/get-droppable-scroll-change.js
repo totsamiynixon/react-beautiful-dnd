@@ -1,8 +1,8 @@
 // @flow
-import type { Position, Rect } from 'css-box-model';
-import type { Scrollable, DroppableDimension } from '../../../types';
+import type { DroppableScrollChange, Position, Rect } from 'css-box-model';
+import type { ScrollableMap, DroppableDimension } from '../../../types';
 import getScroll from './get-scroll';
-import { canScrollDroppable } from '../can-scroll';
+import { canScrollDroppableScrollable } from '../can-scroll';
 
 type Args = {|
   droppable: DroppableDimension,
@@ -18,22 +18,34 @@ export default ({
   center,
   dragStartTime,
   shouldUseTimeDampening,
-}: Args): ?Position => {
+}: Args): ?DroppableScrollChange => {
   // We know this has a closestScrollable
-  const frame: ?Scrollable = droppable.frame;
+  const frame: ?ScrollableMap = droppable.frame;
 
   // this should never happen - just being safe
   if (!frame) {
     return null;
   }
 
-  const scroll: ?Position = getScroll({
-    dragStartTime,
-    container: frame.pageMarginBox,
-    subject,
-    center,
-    shouldUseTimeDampening,
-  });
+  for (const scrollableId in frame) {
+    if (Object.prototype.hasOwnProperty.call(frame, scrollableId)) {
+      const scrollable = frame[scrollableId];
+      const scroll: ?Position = getScroll({
+        dragStartTime,
+        container: scrollable.pageMarginBox,
+        subject,
+        center,
+        shouldUseTimeDampening,
+      });
+      if (scroll && canScrollDroppableScrollable(scrollable, scroll)) {
+        return {
+          scrollableId,
+          scroll,
+        };
+      }
+    }
+  }
 
-  return scroll && canScrollDroppable(droppable, scroll) ? scroll : null;
+  // TODO: reafactor that and above
+  return null;
 };

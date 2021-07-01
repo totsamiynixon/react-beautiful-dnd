@@ -1,7 +1,15 @@
 // @flow
 import { type Position } from 'css-box-model';
 import { add, apply, isEqual, origin } from '../position';
-import type { DroppableDimension, Viewport, Scrollable } from '../../types';
+import type {
+  DroppableDimension,
+  Viewport,
+  ScrollableMap,
+  DroppableOverlap,
+  ScrollableId,
+  Scrollable,
+  s,
+} from '../../types';
 
 type CanPartiallyScrollArgs = {|
   max: Position,
@@ -124,16 +132,40 @@ export const canScrollDroppable = (
   droppable: DroppableDimension,
   change: Position,
 ): boolean => {
-  const frame: ?Scrollable = droppable.frame;
+  const frame: ?ScrollableMap = droppable.frame;
 
-  // Cannot scroll when there is no scrollable
+  // Cannot scroll when there is no any scrollable
   if (!frame) {
     return false;
   }
 
+  // TODO: refactor for more clean solution
+  for (const scrollableId in frame) {
+    if (Object.prototype.hasOwnProperty.call(frame, scrollableId)) {
+      const scrollable = frame[scrollableId];
+      if (
+        canPartiallyScroll({
+          current: scrollable.scroll.current,
+          max: scrollable.scroll.max,
+          change,
+        })
+      ) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+};
+
+export const canScrollDroppableScrollable = (
+  scrollable: Scrollable,
+  change: Position,
+): boolean => {
+  // TODO: refactor for more clean solution
   return canPartiallyScroll({
-    current: frame.scroll.current,
-    max: frame.scroll.max,
+    current: scrollable.scroll.current,
+    max: scrollable.scroll.max,
     change,
   });
 };
@@ -141,8 +173,8 @@ export const canScrollDroppable = (
 export const getDroppableOverlap = (
   droppable: DroppableDimension,
   change: Position,
-): ?Position => {
-  const frame: ?Scrollable = droppable.frame;
+): ?DroppableOverlap => {
+  const frame: ?ScrollableMap = droppable.frame;
 
   if (!frame) {
     return null;
@@ -152,9 +184,23 @@ export const getDroppableOverlap = (
     return null;
   }
 
-  return getOverlap({
-    current: frame.scroll.current,
-    max: frame.scroll.max,
-    change,
-  });
+  for (const scrollableId in frame) {
+    if (Object.prototype.hasOwnProperty.call(frame, scrollableId)) {
+      const scrollable = frame[scrollableId];
+      const overlap = getOverlap({
+        current: scrollable.scroll.current,
+        max: scrollable.scroll.max,
+        change,
+      });
+      if (overlap) {
+        return {
+          scrollableId,
+          overlap,
+        };
+      }
+    }
+  }
+
+  // TODO: invariant negative case that never should happen
+  return null;
 };

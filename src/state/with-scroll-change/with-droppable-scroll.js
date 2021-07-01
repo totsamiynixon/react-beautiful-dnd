@@ -4,10 +4,22 @@ import type { Scrollable, DroppableDimension } from '../../types';
 import { offsetRectByPosition } from '../rect';
 
 export default (droppable: DroppableDimension, area: Rect): Rect => {
-  const frame: ?Scrollable = droppable.frame;
-  if (!frame) {
+  const frame: ScrollableMap = droppable.frame;
+  if (Object.keys(frame).length === 0) {
     return area;
   }
 
-  return offsetRectByPosition(area, frame.scroll.diff.value);
+  let currentArea = area;
+
+  for (const scrollableId in frame) {
+    if (Object.prototype.hasOwnProperty.call(frame, scrollableId)) {
+      const scrollable: Scrollable = frame[scrollableId];
+      currentArea = offsetRectByPosition(
+        currentArea,
+        scrollable.scroll.diff.value,
+      );
+    }
+  }
+
+  return currentArea;
 };

@@ -10,6 +10,7 @@ import {
 } from 'css-box-model';
 import getDroppableDimension, {
   type Closest,
+  type ClosestScrollableMap,
 } from '../../state/droppable/get-droppable';
 import type { Env } from './get-env';
 import type {
@@ -102,34 +103,40 @@ export default ({
   isCombineEnabled,
   shouldClipSubject,
 }: Args): DroppableDimension => {
-
-  //looks like here dimensions recalculared
-  //what if i will run this function to recalculate dimension for each scrollable
-  //then i need to run function that calculate subject for all
-  //then i need to rewrite visibility algorythms to calculate visibility of element in every single scroll container
-  const closestScrollable: ?Element = env.closestScrollable;
+  // looks like here dimensions recalculared
+  // what if i will run this function to recalculate dimension for each scrollable
+  // then i need to run function that calculate subject for all
+  // then i need to rewrite visibility algorythms to calculate visibility of element in every single scroll container
+  const closestScrollable: ?Element = Object.values(env.scrollables)[
+    Object.values(env.scrollables).length - 1
+  ];
   const client: BoxModel = getClient(ref, closestScrollable);
   const page: BoxModel = withScroll(client, windowScroll);
 
-  const closest: ?Closest = (() => {
-    if (!closestScrollable) {
-      return null;
-    }
-
-    const frameClient: BoxModel = getBox(closestScrollable);
+  const closest: ?Closest = (scrollable: Element) => {
+    const frameClient: BoxModel = getBox(scrollable);
     const scrollSize: ScrollSize = {
-      scrollHeight: closestScrollable.scrollHeight,
-      scrollWidth: closestScrollable.scrollWidth,
+      scrollHeight: scrollable.scrollHeight,
+      scrollWidth: scrollable.scrollWidth,
     };
 
     return {
       client: frameClient,
       page: withScroll(frameClient, windowScroll),
-      scroll: getScroll(closestScrollable),
+      scroll: getScroll(scrollable),
       scrollSize,
       shouldClipSubject,
     };
-  })();
+  };
+
+  const closestMap: ClosestScrollableMap = {};
+
+  for (const scrollableId in env.scrollables) {
+    if (Object.prototype.hasOwnProperty.call(env.scrollables, scrollableId)) {
+      const scrollable = env.scrollables[scrollableId];
+      closestMap[scrollableId] = closest(scrollable);
+    }
+  }
 
   const dimension: DroppableDimension = getDroppableDimension({
     descriptor,
@@ -139,7 +146,7 @@ export default ({
     direction,
     client,
     page,
-    closest,
+    closestMap,
   });
 
   return dimension;
