@@ -58,6 +58,7 @@ const getScrollableFromDragById = (
 
 export default function useDroppablePublisher (args: Props) {
   const whileDraggingRef = useRef<?WhileDragging>(null);
+  const envRef = useRef<?Env>(null);
   const appContext: AppContextValue = useRequiredContext(AppContext);
   const uniqueId: Id = useUniqueId('droppable');
   const { registry, marshal } = appContext;
@@ -148,12 +149,16 @@ export default function useDroppablePublisher (args: Props) {
       invariant(ref, 'Cannot collect without a droppable ref');
       const env: Env = getEnv(ref);
 
+      // side effect
+      envRef.current = env;
+
       const dragging: WhileDragging = {
         ref,
         descriptor,
         env,
         scrollOptions: options,
       };
+
       // side effect
       whileDraggingRef.current = dragging;
 
@@ -215,7 +220,13 @@ export default function useDroppablePublisher (args: Props) {
 
       return dimension;
     },
-    [appContext.contextId, descriptor, onScrollableScroll, previousRef],
+    [
+      appContext.contextId,
+      descriptor,
+      previousRef,
+      updateScroll,
+      scheduleScrollUpdate,
+    ],
   );
 
   const getScrollWhileDragging = useCallback((): Position => {
@@ -233,10 +244,9 @@ export default function useDroppablePublisher (args: Props) {
     const dragging: ?WhileDragging = whileDraggingRef.current;
     invariant(dragging, 'Cannot stop drag when no active drag');
 
-    const previous: Props = previousRef.current;
-    const ref: ?HTMLElement = previous.getDroppableRef();
-    invariant(ref, 'Cannot collect without a droppable ref');
-    const env: Env = getEnv(ref);
+    const env: ?Env = envRef.current;
+    // that should never happen
+    invariant(dragging, 'Cannot stop drag when no env drag');
 
     const scrollables: EnvScrollalbeIdElementMap = env.scrollables;
 

@@ -123,18 +123,6 @@ export default class Board extends Component<Props, State> {
     });
   };
 
-  componentDidMount() {
-    window.addEventListener('keydown', (e) => {
-      const container = document.getElementById('container');
-      if(e.keyCode === 37) {
-        container.scrollLeft -= 10;
-      }
-      else if(e.keyCode === 39) {
-        container.scrollLeft += 10;
-      }
-      });
-    }
-
   render() {
     const columns: QuoteMap = this.state.columns;
     const ordered: string[] = this.state.ordered;
