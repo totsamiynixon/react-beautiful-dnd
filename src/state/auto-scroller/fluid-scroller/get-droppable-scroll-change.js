@@ -27,7 +27,9 @@ export default ({
     return null;
   }
 
-  for (const scrollableId in frame) {
+  const inversedFrameKeys = Object.keys(frame).reverse();
+
+  for (const scrollableId of inversedFrameKeys) {
     if (Object.prototype.hasOwnProperty.call(frame, scrollableId)) {
       const scrollable = frame[scrollableId];
       const scroll: ?Position = getScroll({
