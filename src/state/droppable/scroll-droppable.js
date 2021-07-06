@@ -1,6 +1,6 @@
 // @flow
 import { type Position } from 'css-box-model';
-import { invariant } from '../../invariant';
+import { findIndex } from '../../native-with-fallback';
 import type {
   DroppableDimension,
   ScrollableId,
@@ -15,8 +15,14 @@ export default (
   scrollableId: ScrollableId,
   newScroll: Position,
 ): DroppableDimension => {
-  invariant(droppable.frame);
-  const scrollable: Scrollable = droppable.frame[scrollableId];
+  const frame: Scrollable[] = droppable.frame;
+
+  const scrollableIndex = findIndex(
+    frame,
+    (x) => x.scrollableId === scrollableId,
+  );
+
+  const scrollable: Scrollable = frame[scrollableIndex];
 
   const scrollDiff: Position = subtract(newScroll, scrollable.scroll.initial);
   // a positive scroll difference leads to a negative displacement
@@ -28,20 +34,19 @@ export default (
 
   // Position of frame including displacement because of scroll
 
-  const frame = {
-    ...droppable.frame,
-    [scrollableId]: {
-      ...scrollable,
-      scroll: {
-        initial: scrollable.scroll.initial,
-        current: newScroll,
-        diff: {
-          value: scrollDiff,
-          displacement: scrollDisplacement,
-        },
-        // TODO: rename 'softMax?'
-        max: scrollable.scroll.max,
+  const newFrame: Scrollable[] = [...frame];
+
+  newFrame[scrollableIndex] = {
+    ...scrollable,
+    scroll: {
+      initial: scrollable.scroll.initial,
+      current: newScroll,
+      diff: {
+        value: scrollDiff,
+        displacement: scrollDisplacement,
       },
+      // TODO: rename 'softMax?'
+      max: scrollable.scroll.max,
     },
   };
 
@@ -50,11 +55,11 @@ export default (
     page: droppable.subject.page,
     withPlaceholder: droppable.subject.withPlaceholder,
     axis: droppable.axis,
-    frame,
+    frame: newFrame,
   });
   const result: DroppableDimension = {
     ...droppable,
-    frame,
+    frame: newFrame,
     subject,
   };
   return result;

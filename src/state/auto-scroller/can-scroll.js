@@ -4,12 +4,10 @@ import { add, apply, isEqual, origin } from '../position';
 import type {
   DroppableDimension,
   Viewport,
-  ScrollableMap,
-  DroppableOverlap,
-  ScrollableId,
   Scrollable,
-  s,
+  DroppableOverlap,
 } from '../../types';
+import { invariant } from '../../invariant';
 
 type CanPartiallyScrollArgs = {|
   max: Position,
@@ -132,26 +130,17 @@ export const canScrollDroppable = (
   droppable: DroppableDimension,
   change: Position,
 ): boolean => {
-  const frame: ?ScrollableMap = droppable.frame;
+  const frame: Scrollable[] = droppable.frame;
 
-  // Cannot scroll when there is no any scrollable
-  if (!frame) {
-    return false;
-  }
-
-  // TODO: refactor for more clean solution
-  for (const scrollableId in frame) {
-    if (Object.prototype.hasOwnProperty.call(frame, scrollableId)) {
-      const scrollable = frame[scrollableId];
-      if (
-        canPartiallyScroll({
-          current: scrollable.scroll.current,
-          max: scrollable.scroll.max,
-          change,
-        })
-      ) {
-        return true;
-      }
+  for (const scrollable of frame) {
+    if (
+      canPartiallyScroll({
+        current: scrollable.scroll.current,
+        max: scrollable.scroll.max,
+        change,
+      })
+    ) {
+      return true;
     }
   }
 
@@ -162,7 +151,6 @@ export const canScrollDroppableScrollable = (
   scrollable: Scrollable,
   change: Position,
 ): boolean => {
-  // TODO: refactor for more clean solution
   return canPartiallyScroll({
     current: scrollable.scroll.current,
     max: scrollable.scroll.max,
@@ -170,37 +158,39 @@ export const canScrollDroppableScrollable = (
   });
 };
 
+const getScrollablesOverlap = (frame: Scrollable[], change: Position) => {
+  for (const scrollable of frame) {
+    const scrollableId: ScrollableId = scrollable.scrollableId;
+    const overlap = getOverlap({
+      current: scrollable.scroll.current,
+      max: scrollable.scroll.max,
+      change,
+    });
+    if (overlap) {
+      return {
+        scrollableId,
+        overlap,
+      };
+    }
+  }
+
+  return null;
+};
+
 export const getDroppableOverlap = (
   droppable: DroppableDimension,
   change: Position,
 ): ?DroppableOverlap => {
-  const frame: ?ScrollableMap = droppable.frame;
-
-  if (!frame) {
-    return null;
-  }
+  const frame: Scrollable[] = droppable.frame;
 
   if (!canScrollDroppable(droppable, change)) {
     return null;
   }
 
-  for (const scrollableId in frame) {
-    if (Object.prototype.hasOwnProperty.call(frame, scrollableId)) {
-      const scrollable = frame[scrollableId];
-      const overlap = getOverlap({
-        current: scrollable.scroll.current,
-        max: scrollable.scroll.max,
-        change,
-      });
-      if (overlap) {
-        return {
-          scrollableId,
-          overlap,
-        };
-      }
-    }
-  }
+  const overlap = getScrollablesOverlap(frame, change);
 
-  // TODO: invariant negative case that never should happen
-  return null;
+  // this should never happen - just being safe
+  invariant(overlap, 'Droppable overlap was not found');
+
+  return overlap;
 };

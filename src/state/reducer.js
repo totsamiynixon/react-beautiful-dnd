@@ -55,7 +55,7 @@ const postDroppableChange = (
   });
 };
 
-function removeScrollJumpRequest (state: State): State {
+function removeScrollJumpRequest(state: State): State {
   if (state.isDragging && state.movementMode === 'SNAP') {
     return {
       // will be overwritten by spread

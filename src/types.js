@@ -99,6 +99,7 @@ export type DraggableDimension = {|
 |};
 
 export type Scrollable = {|
+  scrollableId: ScrollableId,
   // This is the window through which the droppable is observed
   // It does not change during a drag
   pageMarginBox: Rect,
@@ -110,8 +111,6 @@ export type Scrollable = {|
   shouldClipSubject: boolean,
   scroll: ScrollDetails,
 |};
-
-export type ScrollableMap = { [key: ScrollableId]: Scrollable };
 
 export type DroppableOverlap = {|
   scrollableId: ScrollableId,
@@ -146,7 +145,6 @@ export type DroppableSubject = {|
   active: ?Rect,
 |};
 
-
 export type DroppableDimension = {|
   descriptor: DroppableDescriptor,
   axis: Axis,
@@ -159,7 +157,7 @@ export type DroppableDimension = {|
   // relative to the page
   page: BoxModel,
   // The container of the droppable
-  frame: ?ScrollableMap,
+  frame: Scrollable[],
   // what is visible through the frame
   subject: DroppableSubject,
 |};

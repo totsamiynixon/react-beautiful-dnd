@@ -5,8 +5,8 @@ import type {
   DroppableDimension,
   DroppableDimensionMap,
   DroppableId,
+  Scrollable,
 } from '../../../types';
-import { invariant } from '../../../invariant';
 import isPositionInFrame from '../../visibility/is-position-in-frame';
 import { toDroppableList } from '../../dimension-structures';
 import { find } from '../../../native-with-fallback';
@@ -21,7 +21,7 @@ const getScrollableDroppables = memoizeOne(
         }
 
         // only want droppables that are scrollable
-        if (!droppable.frame) {
+        if (!droppable.frame.length) {
           return false;
         }
 
@@ -37,20 +37,14 @@ const getScrollableDroppableOver = (
   const maybe: ?DroppableDimension = find(
     getScrollableDroppables(droppables),
     (droppable: DroppableDimension): boolean => {
-      const frame = droppable.frame;
-      invariant(frame, 'Invalid result');
-      // perhaps here we could do enumaration through array of frames per each scrollable parent
-      // perhaps we need to go there from the higher parent to the lower child
-      for (const scrollableId in frame) {
-        if (Object.prototype.hasOwnProperty.call(frame, scrollableId)) {
-          const scrollable = frame[scrollableId];
-          if (isPositionInFrame(scrollable.pageMarginBox)(target)) {
-            return true;
-          }
+      const frame: Scrollable[] = droppable.frame;
+
+      for (const scrollable of frame) {
+        if (isPositionInFrame(scrollable.pageMarginBox)(target)) {
+          return true;
         }
       }
 
-      // TODO: check how to refactor that
       return false;
     },
   );

@@ -1,10 +1,10 @@
 // @flow
 import { invariant } from '../invariant';
 
-import type { DroppableDimension, ScrollableMap } from '../types';
+import type { DroppableDimension, Scrollable } from '../types';
 
-export default (droppable: DroppableDimension): ScrollableMap => {
-  const frame: ?ScrollableMap = droppable.frame;
+export default (droppable: DroppableDimension): Scrollable[] => {
+  const frame: Scrollable[] = droppable.frame;
   invariant(frame, 'Expected Droppable to have a frame');
   return frame;
 };

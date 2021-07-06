@@ -15,7 +15,8 @@ import { DragDropContext, Droppable } from '../../../src';
 
 const ParentContainer = styled.div`
   height: ${({ height }) => height};
-  overflow-x: hidden;
+  width: ${({ width }) => width};
+  overflow-x: auto;
   overflow-y: auto;
 `;
 
@@ -32,6 +33,7 @@ type Props = {|
   withScrollableColumns?: boolean,
   isCombineEnabled?: boolean,
   containerHeight?: string,
+  containerWidth?: string,
   useClone?: boolean,
 |};
 
@@ -120,6 +122,7 @@ export default class Board extends Component<Props, State> {
     const ordered: string[] = this.state.ordered;
     const {
       containerHeight,
+      containerWidth,
       useClone,
       isCombineEnabled,
       withScrollableColumns,
@@ -130,24 +133,28 @@ export default class Board extends Component<Props, State> {
         droppableId="board"
         type="COLUMN"
         direction="horizontal"
-        ignoreContainerClipping={Boolean(containerHeight)}
+        ignoreContainerClipping={
+          Boolean(containerHeight) || Boolean(containerWidth)
+        }
         isCombineEnabled={isCombineEnabled}
       >
         {(provided: DroppableProvided) => (
-          <Container ref={provided.innerRef} {...provided.droppableProps}>
-            {ordered.map((key: string, index: number) => (
-              <Column
-                key={key}
-                index={index}
-                title={key}
-                quotes={columns[key]}
-                isScrollable={withScrollableColumns}
-                isCombineEnabled={isCombineEnabled}
-                useClone={useClone}
-              />
-            ))}
-            {provided.placeholder}
-          </Container>
+          <>
+            <Container ref={provided.innerRef} {...provided.droppableProps}>
+              {ordered.map((key: string, index: number) => (
+                <Column
+                  key={key}
+                  index={index}
+                  title={key}
+                  quotes={columns[key]}
+                  isScrollable={withScrollableColumns}
+                  isCombineEnabled={isCombineEnabled}
+                  useClone={useClone}
+                />
+              ))}
+              {provided.placeholder}
+            </Container>
+          </>
         )}
       </Droppable>
     );
@@ -156,7 +163,9 @@ export default class Board extends Component<Props, State> {
       <React.Fragment>
         <DragDropContext onDragEnd={this.onDragEnd}>
           {containerHeight ? (
-            <ParentContainer height={containerHeight}>{board}</ParentContainer>
+            <ParentContainer height={containerHeight} width={containerWidth}>
+              {board}
+            </ParentContainer>
           ) : (
             board
           )}

@@ -3,28 +3,25 @@ import { getRect, type Rect, type Spacing, type BoxModel } from 'css-box-model';
 import type {
   Axis,
   Scrollable,
-  ScrollableMap,
   DroppableSubject,
   PlaceholderInSubject,
 } from '../../../types';
-// import executeClip from './clip';
+import executeClip from './clip';
 import { offsetByPosition } from '../../spacing';
 
-const scroll = (target: Spacing, frame: ?ScrollableMap): Spacing => {
-  if (!frame) {
+const scroll = (target: Spacing, frame: Scrollable[]): Spacing => {
+  if (!frame.length) {
     return target;
   }
 
-  // TODO: refactor that
-  // eslint-disable-next-line es5/no-es6-methods
-  const displacement = Object.values(frame).reduce(
+  const displacement = frame.reduce(
     (current, scrollable: Scrollable) => {
-      current.x = scrollable.scroll.diff.displacement.x;
-      current.y = scrollable.scroll.diff.displacement.y;
+      current.x += scrollable.scroll.diff.displacement.x;
+      current.y += scrollable.scroll.diff.displacement.y;
 
       return current;
     },
-    {},
+    { x: 0, y: 0 },
   );
 
   return offsetByPosition(target, displacement);
@@ -44,17 +41,11 @@ const increase = (
   return target;
 };
 
-const clip = (target: Spacing, frame: ?ScrollableMap): ?Rect => {
-  // TODO: check what it is for
-  // looks like it is done to clip if frame has more width or height that pageMarginBox; not sure how it could happen
-  /* if (frame && frame.shouldClipSubject) {
-    return executeClip(frame.pageMarginBox, target);
-  } */
-
-  if (!frame) {
-    return null;
+const clip = (target: Spacing, frame: Scrollable[]): ?Rect => {
+  const scrollable = frame.slice(-1)[0];
+  if (scrollable && scrollable.shouldClipSubject) {
+    return executeClip(scrollable.pageMarginBox, target);
   }
-
   return getRect(target);
 };
 
@@ -62,7 +53,7 @@ type Args = {|
   page: BoxModel,
   withPlaceholder: ?PlaceholderInSubject,
   axis: Axis,
-  frame: ?ScrollableMap,
+  frame: Scrollable[],
 |};
 
 export default ({

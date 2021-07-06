@@ -4,7 +4,7 @@ import type {
   Axis,
   DroppableDimension,
   DroppableDescriptor,
-  ScrollableMap,
+  Scrollable,
   ScrollableId,
   DroppableSubject,
   ScrollSize,
@@ -22,7 +22,10 @@ export type Closest = {|
   shouldClipSubject: boolean,
 |};
 
-export type ClosestScrollableMap = { [key: ScrollableId]: Closest };
+export type ClosestScrollable = {|
+  scrollableId: ScrollableId,
+  closest: Closest,
+|};
 
 type Args = {|
   descriptor: DroppableDescriptor,
@@ -33,7 +36,7 @@ type Args = {|
   client: BoxModel,
   // is null when in a fixed container
   page: BoxModel,
-  closestMap?: ?ClosestScrollableMap,
+  closestScrollables: ClosestScrollable[],
 |};
 
 export default ({
@@ -44,49 +47,49 @@ export default ({
   direction,
   client,
   page,
-  closestMap,
+  closestScrollables,
 }: Args): DroppableDimension => {
-  const frame: ?ScrollableMap = (() => {
-    if (!closestMap) {
+  const frame: Scrollable[] = (() => {
+    if (!closestScrollables) {
       return null;
     }
 
-    const scrollableMap = {};
+    const scrollables: Scrollable[] = [];
 
-    // TODO: refactor that
-    for (const scrollableId in closestMap) {
-      if (Object.prototype.hasOwnProperty.call(closestMap, scrollableId)) {
-        const closest = closestMap[scrollableId];
-        const { scrollSize, client: frameClient } = closest;
+    for (const closestScrollable of closestScrollables) {
+      const closest: Closest = closestScrollable.closest;
+      const { scrollSize, client: frameClient } = closest;
 
-        // scrollHeight and scrollWidth are based on the padding box
-        // https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollHeight
-        const maxScroll: Position = getMaxScroll({
-          scrollHeight: scrollSize.scrollHeight,
-          scrollWidth: scrollSize.scrollWidth,
-          height: frameClient.paddingBox.height,
-          width: frameClient.paddingBox.width,
-        });
+      // scrollHeight and scrollWidth are based on the padding box
+      // https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollHeight
+      const maxScroll: Position = getMaxScroll({
+        scrollHeight: scrollSize.scrollHeight,
+        scrollWidth: scrollSize.scrollWidth,
+        height: frameClient.paddingBox.height,
+        width: frameClient.paddingBox.width,
+      });
 
-        scrollableMap[scrollableId] = {
-          pageMarginBox: closest.page.marginBox,
-          frameClient,
-          scrollSize,
-          shouldClipSubject: closest.shouldClipSubject,
-          scroll: {
-            initial: closest.scroll,
-            current: closest.scroll,
-            max: maxScroll,
-            diff: {
-              value: origin,
-              displacement: origin,
-            },
+      const scrollable: Scrollable = {
+        scrollableId: closestScrollable.scrollableId,
+        pageMarginBox: closest.page.marginBox,
+        frameClient,
+        scrollSize,
+        shouldClipSubject: closest.shouldClipSubject,
+        scroll: {
+          initial: closest.scroll,
+          current: closest.scroll,
+          max: maxScroll,
+          diff: {
+            value: origin,
+            displacement: origin,
           },
-        };
-      }
+        },
+      };
+
+      scrollables.push(scrollable);
     }
 
-    return scrollableMap;
+    return scrollables;
   })();
 
   const axis: Axis = direction === 'vertical' ? vertical : horizontal;

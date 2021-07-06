@@ -20,6 +20,14 @@ storiesOf('board', module)
   .add('scrollable columns', () => (
     <Board initial={authorQuoteMap} withScrollableColumns />
   ))
+  .add('nested scroll', () => (
+    <Board
+      initial={authorQuoteMap}
+      containerHeight="60vh"
+      containerWidth="60vw"
+      withScrollableColumns
+    />
+  ))
   .add('with combining', () => (
     <Board initial={authorQuoteMap} isCombineEnabled />
   ))

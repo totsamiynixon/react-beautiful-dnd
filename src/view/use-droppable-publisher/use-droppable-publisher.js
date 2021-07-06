@@ -4,6 +4,7 @@ import { type Position } from 'css-box-model';
 import rafSchedule from 'raf-schd';
 import { useMemo, useCallback } from 'use-memo-one';
 import memoizeOne from 'memoize-one';
+import { find } from '../../native-with-fallback';
 import { invariant } from '../../invariant';
 import checkForNestedScrollContainers from './check-for-nested-scroll-container';
 import * as dataAttr from '../data-attributes';
@@ -13,10 +14,11 @@ import type {
   DroppableEntry,
   DroppableCallbacks,
 } from '../../state/registry/registry-types';
-import getEnv, { type Env } from './get-env';
+import getEnv, { type Env, type EnvScrollable } from './get-env';
 import type {
   Id,
   DroppableId,
+  ScrollableId,
   TypeId,
   DroppableDimension,
   DroppableDescriptor,
@@ -54,9 +56,15 @@ type WhileDragging = {|
 const getScrollableFromDragById = (
   dragging: ?WhileDragging,
   scrollableId: ScrollableId,
-): ?Element => (dragging && dragging.env.scrollables[scrollableId]) || null;
+): ?EnvScrollable =>
+  dragging &&
+  (find(
+    dragging.env.scrollables,
+    (scrollable) => scrollable.scrollableId === scrollableId,
+  ) ||
+    null);
 
-export default function useDroppablePublisher (args: Props) {
+export default function useDroppablePublisher(args: Props) {
   const whileDraggingRef = useRef<?WhileDragging>(null);
   const envRef = useRef<?Env>(null);
   const appContext: AppContextValue = useRequiredContext(AppContext);
@@ -94,8 +102,13 @@ export default function useDroppablePublisher (args: Props) {
       if (!dragging) {
         return origin;
       }
-
-      return getScroll(dragging.env.scrollables[scrollableId]);
+      const scrollable = getScrollableFromDragById(dragging, scrollableId);
+      invariant(
+        scrollable,
+        'Cannot get scroll for a scrollable when there is no associated item in env',
+      );
+      const closest: Element = scrollable.element;
+      return getScroll(closest);
     },
     [],
   );
@@ -114,28 +127,25 @@ export default function useDroppablePublisher (args: Props) {
   ]);
 
   const onScrollableScroll = useCallback(
-    (scrollableId: ScrollableId) => {
-      scrollableScrollListenersRef.current[scrollableId] = () => {
-        const dragging: ?WhileDragging = whileDraggingRef.current;
-        const closest: ?Element = getScrollableFromDragById(
-          dragging,
-          scrollableId,
-        );
+    (scrollableId: ScrollableId) => () => {
+      const dragging: ?WhileDragging = whileDraggingRef.current;
+      const scrollable: Element = getScrollableFromDragById(
+        dragging,
+        scrollableId,
+      );
 
-        invariant(
-          dragging && closest,
-          'Could not find scroll options while scrolling',
-        );
-        const options: ScrollOptions = dragging.scrollOptions;
-        if (options.shouldPublishImmediately) {
-          updateScroll(scrollableId);
-          return;
-        }
-        scheduleScrollUpdate(scrollableId);
-      };
-      return scrollableScrollListenersRef.current[scrollableId];
+      invariant(
+        dragging && scrollable,
+        'Could not find scroll options while scrolling',
+      );
+      const options: ScrollOptions = dragging.scrollOptions;
+      if (options.shouldPublishImmediately) {
+        updateScroll(scrollableId);
+        return;
+      }
+      scheduleScrollUpdate(scrollableId);
     },
-    [scheduleScrollUpdate, updateScroll],
+    [updateScroll, scheduleScrollUpdate],
   );
 
   const getDimensionAndWatchScroll = useCallback(
@@ -173,71 +183,45 @@ export default function useDroppablePublisher (args: Props) {
         shouldClipSubject: !previous.ignoreContainerClipping,
       });
 
-      const scrollables: EnvScrollalbeIdElementMap = env.scrollables;
+      const scrollables: EnvScrollable[] = env.scrollables;
 
-      if (scrollables) {
-        for (const scrollableId in scrollables) {
-          if (Object.prototype.hasOwnProperty.call(scrollables, scrollableId)) {
-            const scrollable = scrollables[scrollableId];
+      for (const scrollable of scrollables) {
+        const scrollableId: ScrollableId = scrollable.scrollableId;
 
-            scrollable.setAttribute(
-              dataAttr.scrollContainer.contextId + scrollableId,
-              appContext.contextId,
-            );
+        scrollable.element.setAttribute(
+          dataAttr.scrollContainer.contextId,
+          appContext.contextId,
+        );
 
-            scrollableScrollListenersRef.current[scrollableId] = () => {
-              //const dragging: ?WhileDragging = whileDraggingRef.current;
-              const closest: ?Element = getScrollableFromDragById(
-                dragging,
-                scrollableId,
-              );
-
-              invariant(
-                dragging && closest,
-                'Could not find scroll options while scrolling',
-              );
-              //const options: ScrollOptions = dragging.scrollOptions;
-              if (options.shouldPublishImmediately) {
-                updateScroll(scrollableId);
-                return;
-              }
-              scheduleScrollUpdate(scrollableId);
-            };
-
-            // bind scroll listener
-            scrollable.addEventListener(
-              'scroll',
-              scrollableScrollListenersRef.current[scrollableId],
-              getListenerOptions(dragging.scrollOptions),
-            );
-            // print a debug warning if using an unsupported nested scroll container setup
-            if (process.env.NODE_ENV !== 'production') {
-              checkForNestedScrollContainers(scrollable);
-            }
-          }
+        // bind scroll listener
+        scrollableScrollListenersRef.current[scrollableId] = onScrollableScroll(
+          scrollableId,
+        );
+        scrollable.element.addEventListener(
+          'scroll',
+          scrollableScrollListenersRef.current[scrollableId],
+          getListenerOptions(dragging.scrollOptions),
+        );
+        // print a debug warning if using an unsupported nested scroll container setup
+        if (process.env.NODE_ENV !== 'production') {
+          checkForNestedScrollContainers(scrollable);
         }
       }
 
       return dimension;
     },
-    [
-      appContext.contextId,
-      descriptor,
-      previousRef,
-      updateScroll,
-      scheduleScrollUpdate,
-    ],
+    [appContext.contextId, descriptor, previousRef, onScrollableScroll],
   );
 
   const getScrollWhileDragging = useCallback((): Position => {
     const dragging: ?WhileDragging = whileDraggingRef.current;
-    const closest: ?Element = getScrollableFromDragById(dragging);
+    const scrollable: ?EnvScrollable = getScrollableFromDragById(dragging);
     invariant(
-      dragging && closest,
+      dragging && scrollable,
       'Can only recollect Droppable client for Droppables that have a scroll container',
     );
 
-    return getScroll(closest);
+    return getScroll(scrollable.element);
   }, []);
 
   const dragStopped = useCallback(() => {
@@ -248,22 +232,17 @@ export default function useDroppablePublisher (args: Props) {
     // that should never happen
     invariant(dragging, 'Cannot stop drag when no env drag');
 
-    const scrollables: EnvScrollalbeIdElementMap = env.scrollables;
+    const scrollables: EnvScrollable[] = env.scrollables;
 
-    if (scrollables) {
-      for (const scrollableId in scrollables) {
-        if (Object.prototype.hasOwnProperty.call(scrollables, scrollableId)) {
-          const scrollable = scrollables[scrollableId];
-          scrollable.removeAttribute(
-            dataAttr.scrollContainer.contextId + scrollableId,
-          );
-          scrollable.removeEventListener(
-            'scroll',
-            scrollableScrollListenersRef.current[scrollableId],
-            getListenerOptions(dragging.scrollOptions),
-          );
-        }
-      }
+    for (const scrollable of scrollables) {
+      const scrollableId: ScrollableId = scrollable.scrollableId;
+
+      scrollable.element.removeAttribute(dataAttr.scrollContainer.contextId);
+      scrollable.element.removeEventListener(
+        'scroll',
+        scrollableScrollListenersRef.current[scrollableId],
+        getListenerOptions(dragging.scrollOptions),
+      );
     }
 
     // goodbye old friend
@@ -272,17 +251,21 @@ export default function useDroppablePublisher (args: Props) {
     scheduleScrollUpdate.cancel();
     // clear scroll event listeners
     scrollableScrollListenersRef.current = {};
-  }, [previousRef, scrollableScrollListenersRef, scheduleScrollUpdate]);
+  }, [scrollableScrollListenersRef, scheduleScrollUpdate]);
 
   const scroll = useCallback((change: Position, scrollableId: ScrollableId) => {
     // arrange
     const dragging: ?WhileDragging = whileDraggingRef.current;
     invariant(dragging, 'Cannot scroll when there is no drag');
-    const closest: ?Element = dragging.env.scrollables[scrollableId];
+    const scrollable: ?EnvScrollable = getScrollableFromDragById(
+      dragging,
+      scrollableId,
+    );
     invariant(
-      closest,
+      scrollable,
       'Cannot scroll a droppable when there is no associated item in env',
     );
+    const closest: Element = scrollable.element;
 
     // act
     closest.scrollTop += change.y;

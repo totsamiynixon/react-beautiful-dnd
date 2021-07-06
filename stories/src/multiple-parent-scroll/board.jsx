@@ -19,19 +19,12 @@ const ParentContainer = styled.div`
   overflow-y: initial;
 `;
 
-/* const Container = styled.div`
-  background-color: ${colors.B100};
-  min-height: 100vh;
-  display: inline-flex;
-   width: 550px; overflow-x: scroll; 
-`; */
-
 const Container = styled.div`
   background-color: ${colors.B100};
   min-height: 100vh;
   /* like display:flex but will allow bleeding over the window width */
   display: inline-flex;
-  width: 300px; 
+  width: 300px;
   overflow-x: scroll;
 `;
 
@@ -142,7 +135,7 @@ export default class Board extends Component<Props, State> {
         isCombineEnabled={isCombineEnabled}
       >
         {(provided: DroppableProvided) => (
-          <Container id="container" ref={provided.innerRef} {...provided.droppableProps}>
+          <Container ref={provided.innerRef} {...provided.droppableProps}>
             {ordered.map((key: string, index: number) => (
               <Column
                 key={key}

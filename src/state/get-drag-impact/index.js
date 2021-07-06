@@ -38,7 +38,6 @@ export default ({
   viewport,
   afterCritical,
 }: Args): DragImpact => {
-  //looks like here draggable pageBorderBox containes pageBorderBox + pageOffset to detect which droppable we are dragging over
   const pageBorderBox: Rect = offsetRectByPosition(
     draggable.page.borderBox,
     pageOffset,
