@@ -55,6 +55,7 @@ import scrollViewport from '../../../../src/state/scroll-viewport';
         [axis.crossAxisStart]: viewport.frame[axis.crossAxisStart],
         [axis.crossAxisEnd]: homeCrossAxisEnd,
       },
+      closestScrollables: [],
     });
 
     const foreign: DroppableDimension = getDroppableDimension({
@@ -70,6 +71,7 @@ import scrollViewport from '../../../../src/state/scroll-viewport';
         [axis.crossAxisStart]: homeCrossAxisEnd + 1,
         [axis.crossAxisEnd]: viewport.frame[axis.crossAxisEnd],
       },
+      closestScrollables: [],
     });
 
     const dragging: DraggableDimension = getDraggableDimension({

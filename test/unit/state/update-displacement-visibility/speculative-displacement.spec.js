@@ -311,21 +311,26 @@ import { getForcedDisplacement } from '../../../util/impact';
           [axis.start]: 0,
           [axis.end]: 10000,
         },
-        // small frame (will clip subject)
-        closest: {
-          borderBox: {
-            [axis.crossAxisStart]: foreignCrossAxisStart,
-            [axis.crossAxisEnd]: foreignCrossAxisEnd,
-            [axis.start]: 0,
-            [axis.end]: sizeOfDroppable,
+        closestScrollables: [
+          {
+            scrollableId: '//*[@id="root"]',
+            // small frame (will clip subject)
+            closest: {
+              borderBox: {
+                [axis.crossAxisStart]: foreignCrossAxisStart,
+                [axis.crossAxisEnd]: foreignCrossAxisEnd,
+                [axis.start]: 0,
+                [axis.end]: sizeOfDroppable,
+              },
+              shouldClipSubject: true,
+              scroll: origin,
+              scrollSize: {
+                scrollHeight: 10000,
+                scrollWidth: 10000,
+              },
+            },
           },
-          shouldClipSubject: true,
-          scroll: origin,
-          scrollSize: {
-            scrollHeight: 10000,
-            scrollWidth: 10000,
-          },
-        },
+        ],
       });
       // huge viewport
       const viewport: Viewport = createViewport({

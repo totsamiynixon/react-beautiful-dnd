@@ -29,15 +29,20 @@ export default (preset: Object) => {
       right: scrollableScrollSize.scrollWidth,
       bottom: scrollableScrollSize.scrollHeight,
     },
-    closest: {
-      borderBox: frameClient.borderBox,
-      scrollSize: {
-        scrollWidth: scrollableScrollSize.scrollWidth,
-        scrollHeight: scrollableScrollSize.scrollHeight,
+    closestScrollables: [
+      {
+        scrollableId: '//*[@id="root"]',
+        closest: {
+          borderBox: frameClient.borderBox,
+          scrollSize: {
+            scrollWidth: scrollableScrollSize.scrollWidth,
+            scrollHeight: scrollableScrollSize.scrollHeight,
+          },
+          scroll: origin,
+          shouldClipSubject: true,
+        },
       },
-      scroll: origin,
-      shouldClipSubject: true,
-    },
+    ],
   });
 
   return { scrollable, frameClient, scrollableScrollSize };

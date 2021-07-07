@@ -49,6 +49,7 @@ const viewport: Viewport = getViewport();
 
         const scrolledHome: DroppableDimension = scrollDroppable(
           scrollableHome,
+          scrollableHome.frame[0].scrollableId,
           distanceNeeded,
         );
         const updatedDroppables: DroppableDimensionMap = {

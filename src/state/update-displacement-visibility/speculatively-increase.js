@@ -56,6 +56,9 @@ export default ({
     viewport,
     add(viewport.scroll.current, maxScrollChange),
   );
+  // TODO: looks like the code is used for keyboard moving to enable autoscroll
+  // it's needed to calculate, if there are any scrollable we need to scroll to make moved element visible
+  // probably the code below should be run for each scrollable
   const scrolledDroppable: DroppableDimension = destination.frame
     ? scrollDroppable(
         destination,

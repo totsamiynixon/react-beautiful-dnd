@@ -30,15 +30,20 @@ forEach(({ axis, state }: BlockFnArgs) => {
       right: windowScrollSize.scrollWidth,
       bottom: windowScrollSize.scrollHeight,
     },
-    closest: {
-      borderBox: scrollableViewport.frame,
-      scrollSize: {
-        scrollWidth: windowScrollSize.scrollWidth,
-        scrollHeight: windowScrollSize.scrollHeight,
+    closestScrollables: [
+      {
+        scrollableId: '//*[@id="root"]',
+        closest: {
+          borderBox: scrollableViewport.frame,
+          scrollSize: {
+            scrollWidth: windowScrollSize.scrollWidth,
+            scrollHeight: windowScrollSize.scrollHeight,
+          },
+          scroll: origin,
+          shouldClipSubject: true,
+        },
       },
-      scroll: origin,
-      shouldClipSubject: true,
-    },
+    ],
   });
   const thresholds: DistanceThresholds = getDistanceThresholds(
     scrollableViewport.frame,

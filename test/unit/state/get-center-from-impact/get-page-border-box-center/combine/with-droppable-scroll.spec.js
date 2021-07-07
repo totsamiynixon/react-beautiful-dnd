@@ -85,6 +85,7 @@ import { getForcedDisplacement } from '../../../../../util/impact';
         );
         const scrolled: DroppableDimension = scrollDroppable(
           scrollable,
+          scrollable.frame[0].scrollableId,
           scroll,
         );
 

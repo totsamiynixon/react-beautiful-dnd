@@ -46,6 +46,7 @@ const gap: number = 10;
         [axis.start]: 0,
         [axis.end]: droppableSize,
       },
+      closestScrollables: [],
     });
     const inForeign1: DraggableDimension = getDraggableDimension({
       descriptor: {
@@ -188,15 +189,20 @@ const gap: number = 10;
         descriptor,
         direction: axis.direction,
         borderBox: withoutFrame.client.borderBox,
-        closest: {
-          borderBox: withoutFrame.client.borderBox,
-          scrollSize: {
-            scrollWidth: axis === vertical ? crossAxisSize : droppableSize,
-            scrollHeight: axis === vertical ? droppableSize : crossAxisSize,
+        closestScrollables: [
+          {
+            scrollableId: '//*[@id="root"]',
+            closest: {
+              borderBox: withoutFrame.client.borderBox,
+              scrollSize: {
+                scrollWidth: axis === vertical ? crossAxisSize : droppableSize,
+                scrollHeight: axis === vertical ? droppableSize : crossAxisSize,
+              },
+              scroll: origin,
+              shouldClipSubject: false,
+            },
           },
-          scroll: origin,
-          shouldClipSubject: false,
-        },
+        ],
       });
       const originalFrame: ?Scrollable = withFrame.frame;
       invariant(
@@ -296,15 +302,20 @@ const gap: number = 10;
         },
         direction: axis.direction,
         borderBox: withoutFrame.client.borderBox,
-        closest: {
-          borderBox: withoutFrame.client.borderBox,
-          scrollSize: {
-            scrollWidth: axis === vertical ? crossAxisSize : droppableSize,
-            scrollHeight: axis === vertical ? droppableSize : crossAxisSize,
+        closestScrollables: [
+          {
+            scrollableId: '//*[@id="root"]',
+            closest: {
+              borderBox: withoutFrame.client.borderBox,
+              scrollSize: {
+                scrollWidth: axis === vertical ? crossAxisSize : droppableSize,
+                scrollHeight: axis === vertical ? droppableSize : crossAxisSize,
+              },
+              scroll: origin,
+              shouldClipSubject: false,
+            },
           },
-          scroll: origin,
-          shouldClipSubject: false,
-        },
+        ],
       });
       const originalFrame: ?Scrollable = virtual.frame;
       invariant(

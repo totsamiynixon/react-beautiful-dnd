@@ -50,10 +50,6 @@ export default ({
   closestScrollables,
 }: Args): DroppableDimension => {
   const frame: Scrollable[] = (() => {
-    if (!closestScrollables) {
-      return null;
-    }
-
     const scrollables: Scrollable[] = [];
 
     for (const closestScrollable of closestScrollables) {

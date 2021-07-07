@@ -221,22 +221,29 @@ const viewport: Viewport = getViewport();
     });
 
     it('should take into account the change in droppable scroll', () => {
+      const scrollableId = '//*[@id="root"]';
       const scrollable: DroppableDimension = getDroppableDimension({
         descriptor: droppable.descriptor,
         direction: axis.direction,
         borderBox,
-        closest: {
-          borderBox: expandByPosition(borderBox, patch(axis.line, 100)),
-          scrollSize: {
-            scrollHeight: borderBox.width + 100,
-            scrollWidth: borderBox.height + 100,
+        closestScrollables: [
+          {
+            scrollableId,
+            closest: {
+              borderBox: expandByPosition(borderBox, patch(axis.line, 100)),
+              scrollSize: {
+                scrollHeight: borderBox.width + 100,
+                scrollWidth: borderBox.height + 100,
+              },
+              scroll: { x: 0, y: 0 },
+              shouldClipSubject: true,
+            },
           },
-          scroll: { x: 0, y: 0 },
-          shouldClipSubject: true,
-        },
+        ],
       });
       const scrolled: DroppableDimension = scrollDroppable(
         scrollable,
+        scrollableId,
         patch(axis.line, 20),
       );
       const center: Position = patch(

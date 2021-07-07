@@ -48,21 +48,26 @@ const viewport: Viewport = getViewport();
           // will be cut by the frame
           [axis.end]: 200,
         },
-        closest: {
-          borderBox: {
-            [axis.crossAxisStart]: crossAxisStart,
-            [axis.crossAxisEnd]: crossAxisEnd,
-            [axis.start]: 0,
-            // will cut the subject,
-            [axis.end]: 100,
+        closestScrollables: [
+          {
+            scrollableId: '//*[@id="root"]',
+            closest: {
+              borderBox: {
+                [axis.crossAxisStart]: crossAxisStart,
+                [axis.crossAxisEnd]: crossAxisEnd,
+                [axis.start]: 0,
+                // will cut the subject,
+                [axis.end]: 100,
+              },
+              scrollSize: {
+                scrollWidth: 100,
+                scrollHeight: 100,
+              },
+              scroll: { x: 0, y: 0 },
+              shouldClipSubject: true,
+            },
           },
-          scrollSize: {
-            scrollWidth: 100,
-            scrollHeight: 100,
-          },
-          scroll: { x: 0, y: 0 },
-          shouldClipSubject: true,
-        },
+        ],
       });
       const visible: DraggableDimension = getDraggableDimension({
         descriptor: {
@@ -200,6 +205,7 @@ const viewport: Viewport = getViewport();
           [axis.start]: 0,
           [axis.end]: viewport.frame[axis.end] + 100,
         },
+        closestScrollables: [],
       });
       const visible: DraggableDimension = getDraggableDimension({
         descriptor: {

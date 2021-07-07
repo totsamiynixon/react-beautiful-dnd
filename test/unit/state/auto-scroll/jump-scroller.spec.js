@@ -232,6 +232,7 @@ afterEach(() => {
           bottom: 600,
         },
       });
+      const scrollableId = '//*[@id="root"]';
       const scrollable: DroppableDimension = getDroppableDimension({
         // stealing the home descriptor so that the dragging item will
         // be within in
@@ -243,18 +244,23 @@ afterEach(() => {
           right: scrollableScrollSize.scrollWidth,
           bottom: scrollableScrollSize.scrollHeight,
         },
-        closest: {
-          borderBox: frameClient.borderBox,
-          scrollSize: {
-            scrollWidth: scrollableScrollSize.scrollWidth,
-            scrollHeight: scrollableScrollSize.scrollHeight,
+        closestScrollables: [
+          {
+            scrollableId,
+            closest: {
+              borderBox: frameClient.borderBox,
+              scrollSize: {
+                scrollWidth: scrollableScrollSize.scrollWidth,
+                scrollHeight: scrollableScrollSize.scrollHeight,
+              },
+              scroll: { x: 0, y: 0 },
+              shouldClipSubject: true,
+            },
           },
-          scroll: { x: 0, y: 0 },
-          shouldClipSubject: true,
-        },
+        ],
       });
 
-      const maxDroppableScroll: Position = getFrame(scrollable).scroll.max;
+      const maxDroppableScroll: Position = getFrame(scrollable)[0].scroll.max;
 
       describe('moving forwards', () => {
         describe('droppable is able to complete entire scroll', () => {
@@ -270,6 +276,7 @@ afterEach(() => {
 
             expect(mocks.scrollDroppable).toHaveBeenCalledWith(
               scrollable.descriptor.id,
+              scrollableId,
               request,
             );
             expect(mocks.scrollWindow).not.toHaveBeenCalled();
@@ -282,6 +289,7 @@ afterEach(() => {
             // droppable can no longer be scrolled
             const scrolled: DroppableDimension = scrollDroppable(
               scrollable,
+              scrollableId,
               maxDroppableScroll,
             );
             const request: Position = patch(axis.line, 1);
@@ -313,6 +321,7 @@ afterEach(() => {
               );
               const scrolled: DroppableDimension = scrollDroppable(
                 scrollable,
+                scrollableId,
                 scroll,
               );
               // want to move 3 pixels
@@ -331,6 +340,7 @@ afterEach(() => {
               expect(mocks.scrollWindow).not.toHaveBeenCalled();
               expect(mocks.scrollDroppable).toHaveBeenCalledWith(
                 preset.home.descriptor.id,
+                scrollableId,
                 availableScroll,
               );
               expect(mocks.move).toHaveBeenCalledWith({
@@ -348,6 +358,7 @@ afterEach(() => {
               );
               const scrolled: DroppableDimension = scrollDroppable(
                 scrollable,
+                scrollableId,
                 scroll,
               );
               // want to move 3 pixels
@@ -362,6 +373,7 @@ afterEach(() => {
 
               expect(mocks.scrollDroppable).toHaveBeenCalledWith(
                 scrolled.descriptor.id,
+                scrollableId,
                 availableScroll,
               );
               expect(mocks.scrollWindow).toHaveBeenCalledWith(
@@ -396,6 +408,7 @@ afterEach(() => {
               );
               const scrolled: DroppableDimension = scrollDroppable(
                 scrollable,
+                scrollableId,
                 droppableScroll,
               );
               // How much we want to scroll
@@ -418,6 +431,7 @@ afterEach(() => {
 
               expect(mocks.scrollDroppable).toHaveBeenCalledWith(
                 scrolled.descriptor.id,
+                scrollableId,
                 availableDroppableScroll,
               );
               expect(mocks.scrollWindow).toHaveBeenCalledWith(
@@ -437,6 +451,7 @@ afterEach(() => {
             // move forward slightly to allow us to move forwards
             const scrolled: DroppableDimension = scrollDroppable(
               scrollable,
+              scrollableId,
               patch(axis.line, 1),
             );
             const request: Position = patch(axis.line, -1);
@@ -450,6 +465,7 @@ afterEach(() => {
 
             expect(mocks.scrollDroppable).toHaveBeenCalledWith(
               scrolled.descriptor.id,
+              scrollableId,
               request,
             );
             expect(mocks.scrollWindow).not.toHaveBeenCalled();
@@ -483,6 +499,7 @@ afterEach(() => {
               // able to scroll 1 pixel forward
               const scrolled: DroppableDimension = scrollDroppable(
                 scrollable,
+                scrollableId,
                 patch(axis.line, 1),
               );
               // want to move backwards 3 pixels
@@ -502,6 +519,7 @@ afterEach(() => {
               expect(mocks.scrollWindow).not.toHaveBeenCalled();
               expect(mocks.scrollDroppable).toHaveBeenCalledWith(
                 preset.home.descriptor.id,
+                scrollableId,
                 // can only scroll backwards what it has!
                 patch(axis.line, -1),
               );
@@ -520,6 +538,7 @@ afterEach(() => {
               );
               const scrolledDroppable: DroppableDimension = scrollDroppable(
                 scrollable,
+                scrollableId,
                 patch(axis.line, 1),
               );
               // want to move 3 pixels backwards
@@ -534,6 +553,7 @@ afterEach(() => {
 
               expect(mocks.scrollDroppable).toHaveBeenCalledWith(
                 scrolledDroppable.descriptor.id,
+                scrollableId,
                 patch(axis.line, -1),
               );
               expect(mocks.scrollWindow).toHaveBeenCalledWith(
@@ -553,6 +573,7 @@ afterEach(() => {
               const droppableScroll: Position = patch(axis.line, 1);
               const scrolled: DroppableDimension = scrollDroppable(
                 scrollable,
+                scrollableId,
                 droppableScroll,
               );
               // How much we want to scroll
@@ -572,6 +593,7 @@ afterEach(() => {
 
               expect(mocks.scrollDroppable).toHaveBeenCalledWith(
                 scrolled.descriptor.id,
+                scrollableId,
                 negate(droppableScroll),
               );
               expect(mocks.scrollWindow).toHaveBeenCalledWith(

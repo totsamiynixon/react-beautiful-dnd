@@ -55,6 +55,8 @@ const asBigAsInViewport1: DroppableDimension = getDroppableDimension({
   borderBox: inViewport1,
 });
 
+const scrollableId = '//*[@id="root"]';
+
 describe('is totally visible', () => {
   describe('viewport', () => {
     describe('without changes in droppable scroll', () => {
@@ -140,15 +142,20 @@ describe('is totally visible', () => {
           left: viewport.left,
           right: viewport.right,
         },
-        closest: {
-          borderBox: viewport,
-          scrollSize: {
-            scrollWidth: viewport.width,
-            scrollHeight: viewport.bottom + 100,
+        closestScrollables: [
+          {
+            scrollableId,
+            closest: {
+              borderBox: viewport,
+              scrollSize: {
+                scrollWidth: viewport.width,
+                scrollHeight: viewport.bottom + 100,
+              },
+              scroll: { x: 0, y: 0 },
+              shouldClipSubject: true,
+            },
           },
-          scroll: { x: 0, y: 0 },
-          shouldClipSubject: true,
-        },
+        ],
       });
 
       describe('originally invisible but now invisible', () => {
@@ -175,7 +182,10 @@ describe('is totally visible', () => {
             isTotallyVisible({
               withDroppableDisplacement: true,
               target: originallyInvisible,
-              destination: scrollDroppable(clippedByViewport, { x: 0, y: 100 }),
+              destination: scrollDroppable(clippedByViewport, scrollableId, {
+                x: 0,
+                y: 100,
+              }),
               viewport,
             }),
           ).toBe(true);
@@ -236,15 +246,20 @@ describe('is totally visible', () => {
         mode: 'standard',
       },
       borderBox,
-      closest: {
-        borderBox: frame,
-        scroll: { x: 0, y: 0 },
-        scrollSize: {
-          scrollHeight: borderBox.height,
-          scrollWidth: borderBox.width,
+      closestScrollables: [
+        {
+          scrollableId,
+          closest: {
+            borderBox: frame,
+            scroll: { x: 0, y: 0 },
+            scrollSize: {
+              scrollHeight: borderBox.height,
+              scrollWidth: borderBox.width,
+            },
+            shouldClipSubject: true,
+          },
         },
-        shouldClipSubject: true,
-      },
+      ],
     });
 
     describe('without changes in droppable scroll', () => {
@@ -352,15 +367,20 @@ describe('is totally visible', () => {
             // stretches out past frame
             bottom: 600,
           },
-          closest: {
-            borderBox: ourFrame,
-            scrollSize: {
-              scrollHeight: 600,
-              scrollWidth: getRect(ourFrame).width,
+          closestScrollables: [
+            {
+              scrollableId,
+              closest: {
+                borderBox: ourFrame,
+                scrollSize: {
+                  scrollHeight: 600,
+                  scrollWidth: getRect(ourFrame).width,
+                },
+                scroll: { x: 0, y: 0 },
+                shouldClipSubject: true,
+              },
             },
-            scroll: { x: 0, y: 0 },
-            shouldClipSubject: true,
-          },
+          ],
         });
         const inSubjectOutsideFrame: Spacing = {
           ...frame,
@@ -400,10 +420,14 @@ describe('is totally visible', () => {
           ).toBe(false);
 
           // after scroll the target is now visible
-          const scrolled: DroppableDimension = scrollDroppable(scrollable, {
-            x: 0,
-            y: 100,
-          });
+          const scrolled: DroppableDimension = scrollDroppable(
+            scrollable,
+            scrollableId,
+            {
+              x: 0,
+              y: 100,
+            },
+          );
           expect(
             isTotallyVisible({
               withDroppableDisplacement: true,
@@ -438,7 +462,10 @@ describe('is totally visible', () => {
             isTotallyVisible({
               withDroppableDisplacement: true,
               target: originallyVisible,
-              destination: scrollDroppable(scrollable, { x: 0, y: 100 }),
+              destination: scrollDroppable(scrollable, scrollableId, {
+                x: 0,
+                y: 100,
+              }),
               viewport,
             }),
           ).toBe(false);
@@ -462,10 +489,14 @@ describe('is totally visible', () => {
           }),
         ).toBe(true);
 
-        const scrolled: DroppableDimension = scrollDroppable(scrollable, {
-          x: 0,
-          y: 100,
-        });
+        const scrolled: DroppableDimension = scrollDroppable(
+          scrollable,
+          scrollableId,
+          {
+            x: 0,
+            y: 100,
+          },
+        );
         expect(
           isTotallyVisible({
             // still visible because we are not considering the droppable scroll
@@ -502,20 +533,25 @@ describe('is totally visible', () => {
             bottom: 100,
             right: 100,
           },
-          closest: {
-            borderBox: {
-              top: 0,
-              left: 0,
-              bottom: 100,
-              right: 100,
+          closestScrollables: [
+            {
+              scrollableId,
+              closest: {
+                borderBox: {
+                  top: 0,
+                  left: 0,
+                  bottom: 100,
+                  right: 100,
+                },
+                scrollSize: {
+                  scrollHeight: 600,
+                  scrollWidth: 600,
+                },
+                scroll: { x: 0, y: 0 },
+                shouldClipSubject: true,
+              },
             },
-            scrollSize: {
-              scrollHeight: 600,
-              scrollWidth: 600,
-            },
-            scroll: { x: 0, y: 0 },
-            shouldClipSubject: true,
-          },
+          ],
         });
 
         const originallyVisible: Spacing = {
@@ -537,6 +573,7 @@ describe('is totally visible', () => {
         // subject is now totally invisible
         const scrolled: DroppableDimension = scrollDroppable(
           droppable,
+          scrollableId,
           getFrame(droppable).scroll.max,
         );
         // asserting frame is not visible

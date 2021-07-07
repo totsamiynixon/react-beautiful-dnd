@@ -31,6 +31,7 @@ const droppableLarge: DroppableDimension = getDroppableDimension({
     right: 400,
     bottom: 400,
   },
+  closestScrollables: [],
 });
 
 const droppableSmall: DroppableDimension = getDroppableDimension({
@@ -45,6 +46,7 @@ const droppableSmall: DroppableDimension = getDroppableDimension({
     right: 1100,
     bottom: 1100,
   },
+  closestScrollables: [],
 });
 
 const draggable: DraggableDimension = getDraggableDimension({

@@ -18,7 +18,7 @@ const getXPath = (el: ?Element): string => {
   if (el.id) {
     return `//*[@id="${el.id}"']`;
   }
-  const sames = [].filter.call(el.parentNode.children, (x: Element) => {
+  const sames = [].filter.call(el.parentNode?.children ?? [], (x: Element) => {
     return x.tagName === el.tagName;
   });
   const index = sames.length > 1 ? `${[].indexOf.call(sames, el) + 1}]` : '';

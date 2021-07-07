@@ -137,6 +137,7 @@ import { getForcedDisplacement } from '../../../../util/impact';
       const displacement: Position = negate(scroll);
       const scrolled: DroppableDimension = scrollDroppable(
         scrollableHome,
+        scrollableHome.frame[0].scrollableId,
         scroll,
       );
       const withScrolledHome: DimensionMap = patchDimensionMap(

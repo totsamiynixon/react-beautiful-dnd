@@ -43,21 +43,26 @@ const expected: DroppableDimension = getDroppableDimension({
   padding,
   border,
   windowScroll: preset.windowScroll,
-  closest: {
-    // we are using the smallFrameClient as a stand in for the elements
-    // actual borderBox which is cut off when it is a scroll container
-    borderBox: smallFrameClient.borderBox,
-    margin,
-    padding,
-    border,
-    // scroll width and height are based on the padding box
-    scrollSize: {
-      scrollWidth: bigClient.paddingBox.width,
-      scrollHeight: bigClient.paddingBox.height,
+  closestScrollables: [
+    {
+      scrollableId: '//*[@id="root"]',
+      closest: {
+        // we are using the smallFrameClient as a stand in for the elements
+        // actual borderBox which is cut off when it is a scroll container
+        borderBox: smallFrameClient.borderBox,
+        margin,
+        padding,
+        border,
+        // scroll width and height are based on the padding box
+        scrollSize: {
+          scrollWidth: bigClient.paddingBox.width,
+          scrollHeight: bigClient.paddingBox.height,
+        },
+        scroll: { x: 0, y: 0 },
+        shouldClipSubject: true,
+      },
     },
-    scroll: { x: 0, y: 0 },
-    shouldClipSubject: true,
-  },
+  ],
 });
 
 it('should recollect scroll if requested', () => {

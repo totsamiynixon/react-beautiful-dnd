@@ -26,6 +26,21 @@ const scrollableScrollSize = {
   scrollWidth: 200,
   scrollHeight: 200,
 };
+const scrollableId = '//*[@id="root"]';
+const closest = {
+  borderBox: {
+    top: 0,
+    left: 0,
+    right: 100,
+    bottom: 100,
+  },
+  scrollSize: {
+    scrollWidth: scrollableScrollSize.scrollWidth,
+    scrollHeight: scrollableScrollSize.scrollHeight,
+  },
+  scroll: { x: 0, y: 0 },
+  shouldClipSubject: true,
+};
 
 const scrollable: DroppableDimension = getDroppableDimension({
   descriptor: {
@@ -40,20 +55,12 @@ const scrollable: DroppableDimension = getDroppableDimension({
     // bigger than the frame
     bottom: 200,
   },
-  closest: {
-    borderBox: {
-      top: 0,
-      left: 0,
-      right: 100,
-      bottom: 100,
+  closestScrollables: [
+    {
+      scrollableId,
+      closest,
     },
-    scrollSize: {
-      scrollWidth: scrollableScrollSize.scrollWidth,
-      scrollHeight: scrollableScrollSize.scrollHeight,
-    },
-    scroll: { x: 0, y: 0 },
-    shouldClipSubject: true,
-  },
+  ],
 });
 
 const customViewport: Viewport = createViewport({
@@ -436,19 +443,28 @@ describe('get overlap', () => {
 
 describe('can scroll droppable', () => {
   it('should return false if the droppable is not scrollable', () => {
-    const result: boolean = canScrollDroppable(preset.home, { x: 1, y: 1 });
+    const result: boolean = canScrollDroppable(preset.home, scrollableId, {
+      x: 1,
+      y: 1,
+    });
 
     expect(result).toBe(false);
   });
 
   it('should return true if the droppable is able to be scrolled', () => {
-    const result: boolean = canScrollDroppable(scrollable, { x: 0, y: 20 });
+    const result: boolean = canScrollDroppable(scrollable, scrollableId, {
+      x: 0,
+      y: 20,
+    });
 
     expect(result).toBe(true);
   });
 
   it('should return false if the droppable is not able to be scrolled', () => {
-    const result: boolean = canScrollDroppable(scrollable, { x: -1, y: 0 });
+    const result: boolean = canScrollDroppable(scrollable, scrollableId, {
+      x: -1,
+      y: 0,
+    });
 
     expect(result).toBe(false);
   });
@@ -515,8 +531,12 @@ describe('get droppable overlap', () => {
       x: 10,
       y: 20,
     };
-    const scrolled: DroppableDimension = scrollDroppable(scrollable, scroll);
-    const max: Position = getFrame(scrolled).scroll.max;
+    const scrolled: DroppableDimension = scrollDroppable(
+      scrollable,
+      scrollableId,
+      scroll,
+    );
+    const max: Position = getFrame(scrolled)[0].scroll.max;
     const totalSpace: Position = {
       x: scrollableScrollSize.scrollWidth - max.x,
       y: scrollableScrollSize.scrollHeight - max.y,

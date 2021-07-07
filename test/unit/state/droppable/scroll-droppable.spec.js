@@ -51,6 +51,7 @@ it('should update the frame scroll and the subject', () => {
   });
   const framePage: BoxModel = frameClient;
   const originalFrameScroll: Position = { x: 0, y: 0 };
+  const scrollableId = '//*[@id="root"]';
   const droppable: DroppableDimension = getDroppable({
     descriptor,
     client: customClient,
@@ -59,13 +60,18 @@ it('should update the frame scroll and the subject', () => {
     isEnabled: true,
     isCombineEnabled: false,
     isFixedOnPage: false,
-    closest: {
-      client: frameClient,
-      page: framePage,
-      scrollSize,
-      scroll: originalFrameScroll,
-      shouldClipSubject: true,
-    },
+    closestScrollables: [
+      {
+        scrollableId,
+        closest: {
+          client: frameClient,
+          page: framePage,
+          scrollSize,
+          scroll: originalFrameScroll,
+          shouldClipSubject: true,
+        },
+      },
+    ],
   });
 
   const originalFrame: ?Scrollable = droppable.frame;
@@ -77,7 +83,11 @@ it('should update the frame scroll and the subject', () => {
 
   // scrolling down
   const newScroll: Position = { x: 0, y: 100 };
-  const updated: DroppableDimension = scrollDroppable(droppable, newScroll);
+  const updated: DroppableDimension = scrollDroppable(
+    droppable,
+    scrollableId,
+    newScroll,
+  );
   const updatedFrame: ?Scrollable = updated.frame;
   invariant(updatedFrame);
 
@@ -134,6 +144,7 @@ it('should allow scrolling beyond the max position', () => {
       bottom: 100,
     },
   });
+  const scrollableId = '//*[@id="root"]';
   // this is to allow for scrolling into a foreign placeholder
   const scrollable: DroppableDimension = getDroppable({
     descriptor,
@@ -143,24 +154,33 @@ it('should allow scrolling beyond the max position', () => {
     direction: 'vertical',
     isCombineEnabled: false,
     isFixedOnPage: false,
-    closest: {
-      client: frameClient,
-      page: frameClient,
-      scrollSize: {
-        scrollWidth: 200,
-        scrollHeight: 200,
+    closestScrollables: [
+      {
+        scrollableId,
+        closest: {
+          client: frameClient,
+          page: frameClient,
+          scrollSize: {
+            scrollWidth: 200,
+            scrollHeight: 200,
+          },
+          scroll: { x: 0, y: 0 },
+          shouldClipSubject: true,
+        },
       },
-      scroll: { x: 0, y: 0 },
-      shouldClipSubject: true,
-    },
+    ],
   });
   const originalFrame: ?Scrollable = scrollable.frame;
   invariant(originalFrame);
 
-  const scrolled: DroppableDimension = scrollDroppable(scrollable, {
-    x: 300,
-    y: 300,
-  });
+  const scrolled: DroppableDimension = scrollDroppable(
+    scrollable,
+    scrollableId,
+    {
+      x: 300,
+      y: 300,
+    },
+  );
 
   // current is larger than max
   const updatedFrame: ?Scrollable = scrolled.frame;

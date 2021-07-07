@@ -114,6 +114,7 @@ describe('is partially visible', () => {
     });
 
     describe('with changes in droppable scroll', () => {
+      const scrollableId = '//*[@id="root"]';
       const clippedByViewport: DroppableDimension = getDroppableDimension({
         descriptor: {
           id: 'clipped',
@@ -127,15 +128,20 @@ describe('is partially visible', () => {
           left: viewport.left,
           right: viewport.right,
         },
-        closest: {
-          borderBox: viewport,
-          scrollSize: {
-            scrollWidth: viewport.width,
-            scrollHeight: viewport.bottom + 100,
+        closestScrollables: [
+          {
+            scrollableId,
+            closest: {
+              borderBox: viewport,
+              scrollSize: {
+                scrollWidth: viewport.width,
+                scrollHeight: viewport.bottom + 100,
+              },
+              scroll: { x: 0, y: 0 },
+              shouldClipSubject: true,
+            },
           },
-          scroll: { x: 0, y: 0 },
-          shouldClipSubject: true,
-        },
+        ],
       });
 
       describe('originally invisible but now invisible', () => {
@@ -161,7 +167,10 @@ describe('is partially visible', () => {
           expect(
             isPartiallyVisible({
               target: originallyInvisible,
-              destination: scrollDroppable(clippedByViewport, { x: 0, y: 100 }),
+              destination: scrollDroppable(clippedByViewport, scrollableId, {
+                x: 0,
+                y: 100,
+              }),
               viewport,
               withDroppableDisplacement: true,
             }),
@@ -192,7 +201,10 @@ describe('is partially visible', () => {
           expect(
             isPartiallyVisible({
               target: originallyVisible,
-              destination: scrollDroppable(clippedByViewport, { x: 0, y: 100 }),
+              destination: scrollDroppable(clippedByViewport, scrollableId, {
+                x: 0,
+                y: 100,
+              }),
               viewport,
               withDroppableDisplacement: true,
             }),
@@ -216,6 +228,7 @@ describe('is partially visible', () => {
       bottom: 100,
     };
 
+    const scrollableId = '//*[@id="root"]';
     const scrollable: DroppableDimension = getDroppableDimension({
       descriptor: {
         id: 'clipped',
@@ -223,15 +236,20 @@ describe('is partially visible', () => {
         mode: 'standard',
       },
       borderBox,
-      closest: {
-        borderBox: frameBorderBox,
-        scrollSize: {
-          scrollWidth: borderBox.width,
-          scrollHeight: borderBox.height,
+      closestScrollables: [
+        {
+          scrollableId,
+          closest: {
+            borderBox: frameBorderBox,
+            scrollSize: {
+              scrollWidth: borderBox.width,
+              scrollHeight: borderBox.height,
+            },
+            scroll: { x: 0, y: 0 },
+            shouldClipSubject: true,
+          },
         },
-        scroll: { x: 0, y: 0 },
-        shouldClipSubject: true,
-      },
+      ],
     });
 
     describe('without changes in droppable scroll', () => {
@@ -329,15 +347,20 @@ describe('is partially visible', () => {
             // stretches out past frame
             bottom: 600,
           },
-          closest: {
-            borderBox: ourFrame,
-            scrollSize: {
-              scrollHeight: 600,
-              scrollWidth: ourFrame.width,
+          closestScrollables: [
+            {
+              scrollableId,
+              closest: {
+                borderBox: ourFrame,
+                scrollSize: {
+                  scrollHeight: 600,
+                  scrollWidth: ourFrame.width,
+                },
+                scroll: { x: 0, y: 0 },
+                shouldClipSubject: true,
+              },
             },
-            scroll: { x: 0, y: 0 },
-            shouldClipSubject: true,
-          },
+          ],
         });
         const inSubjectOutsideFrame: Spacing = {
           ...frameBorderBox,
@@ -380,7 +403,10 @@ describe('is partially visible', () => {
           expect(
             isPartiallyVisible({
               target: originallyInvisible,
-              destination: scrollDroppable(scrollable, { x: 0, y: 100 }),
+              destination: scrollDroppable(scrollable, scrollableId, {
+                x: 0,
+                y: 100,
+              }),
               viewport,
               withDroppableDisplacement: true,
             }),
@@ -410,7 +436,10 @@ describe('is partially visible', () => {
           expect(
             isPartiallyVisible({
               target: originallyVisible,
-              destination: scrollDroppable(scrollable, { x: 0, y: 100 }),
+              destination: scrollDroppable(scrollable, scrollableId, {
+                x: 0,
+                y: 100,
+              }),
               viewport,
               withDroppableDisplacement: true,
             }),
@@ -436,10 +465,14 @@ describe('is partially visible', () => {
           }),
         ).toBe(false);
 
-        const scrolled: DroppableDimension = scrollDroppable(scrollable, {
-          x: 0,
-          y: 100,
-        });
+        const scrolled: DroppableDimension = scrollDroppable(
+          scrollable,
+          scrollableId,
+          {
+            x: 0,
+            y: 100,
+          },
+        );
         // still invisible if asked not to consider scroll
         expect(
           isPartiallyVisible({
@@ -477,20 +510,25 @@ describe('is partially visible', () => {
             bottom: 100,
             right: 100,
           },
-          closest: {
-            borderBox: {
-              top: 0,
-              left: 0,
-              bottom: 100,
-              right: 100,
+          closestScrollables: [
+            {
+              scrollableId,
+              closest: {
+                borderBox: {
+                  top: 0,
+                  left: 0,
+                  bottom: 100,
+                  right: 100,
+                },
+                scrollSize: {
+                  scrollHeight: 600,
+                  scrollWidth: 600,
+                },
+                scroll: { x: 0, y: 0 },
+                shouldClipSubject: true,
+              },
             },
-            scrollSize: {
-              scrollHeight: 600,
-              scrollWidth: 600,
-            },
-            scroll: { x: 0, y: 0 },
-            shouldClipSubject: true,
-          },
+          ],
         });
 
         const originallyVisible: Spacing = {
@@ -512,6 +550,7 @@ describe('is partially visible', () => {
         // subject is now totally invisible
         const scrolled: DroppableDimension = scrollDroppable(
           droppable,
+          scrollableId,
           getFrame(droppable).scroll.max,
         );
         // asserting frame is not visible

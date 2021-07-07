@@ -33,6 +33,7 @@ import { getForcedDisplacement } from '../../../util/impact';
     const displacement: Position = negate(scroll);
     const scrolled: DroppableDimension = scrollDroppable(
       scrollableHome,
+      scrollableHome.frame[0].scrollableId,
       scroll,
     );
 
@@ -58,6 +59,7 @@ import { getForcedDisplacement } from '../../../util/impact';
     const displacement: Position = negate(scroll);
     const scrolled: DroppableDimension = scrollDroppable(
       scrollableHome,
+      scrollableHome.frame[0].scrollableId,
       scroll,
     );
     // inHome1 combining with inHome2

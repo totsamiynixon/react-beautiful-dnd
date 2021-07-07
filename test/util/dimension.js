@@ -120,14 +120,19 @@ export const makeScrollable = (
     page: newPage,
     isCombineEnabled: droppable.isCombineEnabled,
     isFixedOnPage: droppable.isFixedOnPage,
-    closest: {
-      // using old dimensions for frame
-      client: droppable.client,
-      page: droppable.page,
-      scrollSize,
-      scroll: origin,
-      shouldClipSubject: true,
-    },
+    closestScrollables: [
+      {
+        scrollableId: 'test',
+        closest: {
+          // using old dimensions for frame
+          client: droppable.client,
+          page: droppable.page,
+          scrollSize,
+          scroll: origin,
+          shouldClipSubject: true,
+        },
+      },
+    ],
   });
 };
 
@@ -245,7 +250,7 @@ export const getDroppableDimension = ({
   padding,
   border,
   windowScroll = origin,
-  closest,
+  closestScrollables = [],
   isEnabled = true,
   direction = 'vertical',
   isFixedOnPage = false,
@@ -259,7 +264,7 @@ export const getDroppableDimension = ({
   });
   const page: BoxModel = withScroll(client, windowScroll);
 
-  const closestScrollable: ?Closest = (() => {
+  const getClosest: ?Closest = (closest) => {
     if (!closest) {
       return null;
     }
@@ -282,7 +287,12 @@ export const getDroppableDimension = ({
     };
 
     return result;
-  })();
+  };
+
+  const closestScrollablesResult = closestScrollables.map((cs) => ({
+    scrollableId: cs.scrollableId,
+    closest: getClosest(cs.closest),
+  }));
 
   return getDroppable({
     descriptor,
@@ -290,7 +300,7 @@ export const getDroppableDimension = ({
     direction,
     client,
     page,
-    closest: closestScrollable,
+    closestScrollables: closestScrollablesResult,
     isCombineEnabled,
     isFixedOnPage,
   });
@@ -414,6 +424,7 @@ export const getPreset = (axis?: Axis = vertical) => {
     ...assortedSpacing,
     windowScroll,
     direction: axis.direction,
+    closestScrollables: [],
   });
 
   const foreign: DroppableDimension = getDroppableDimension({
@@ -431,6 +442,7 @@ export const getPreset = (axis?: Axis = vertical) => {
     ...assortedSpacing,
     windowScroll,
     direction: axis.direction,
+    closestScrollables: [],
   });
 
   const emptyForeign: DroppableDimension = getDroppableDimension({
@@ -448,6 +460,7 @@ export const getPreset = (axis?: Axis = vertical) => {
     ...assortedSpacing,
     windowScroll,
     direction: axis.direction,
+    closestScrollables: [],
   });
 
   const inHome1Size: number = 20;
@@ -472,6 +485,7 @@ export const getPreset = (axis?: Axis = vertical) => {
     },
     windowScroll,
     ...assortedSpacing,
+    closestScrollables: [],
   });
 
   // size: 20

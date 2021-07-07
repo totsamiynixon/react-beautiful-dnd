@@ -38,9 +38,11 @@ describe('get draggables inside a droppable', () => {
       preset.home.descriptor.id,
       preset.draggables,
     );
+    const scrollable = makeScrollable(preset.home);
     // even though we are scrolling the droppable (new reference) we are maintaining memoization
     const scrolledHome: DroppableDimension = scrollDroppable(
-      makeScrollable(preset.home),
+      scrollable,
+      scrollable.frame[0].scrollableId,
       { x: 10, y: 20 },
     );
     const second: DraggableDimension[] = getDraggablesInsideDroppable(

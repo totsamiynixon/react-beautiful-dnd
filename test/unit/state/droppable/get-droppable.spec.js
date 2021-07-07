@@ -78,7 +78,7 @@ describe('closest scrollable', () => {
         client,
         page,
         direction: 'vertical',
-        closest: null,
+        closestScrollables: [],
       });
 
       expect(dimension.frame).toBe(null);
@@ -94,16 +94,21 @@ describe('closest scrollable', () => {
       direction: 'vertical',
       isCombineEnabled: false,
       isFixedOnPage: false,
-      closest: {
-        client,
-        page,
-        scrollSize: {
-          scrollHeight: client.paddingBox.height,
-          scrollWidth: client.paddingBox.width,
+      closestScrollables: [
+        {
+          scrollableId: '//*[@id="root"]',
+          closest: {
+            client,
+            page,
+            scrollSize: {
+              scrollHeight: client.paddingBox.height,
+              scrollWidth: client.paddingBox.width,
+            },
+            scroll: { x: 10, y: 10 },
+            shouldClipSubject: true,
+          },
         },
-        scroll: { x: 10, y: 10 },
-        shouldClipSubject: true,
-      },
+      ],
     });
 
     it('should offset the frame client by the window scroll', () => {
@@ -171,16 +176,21 @@ describe('closest scrollable', () => {
         isCombineEnabled: false,
         isFixedOnPage: false,
         direction: 'vertical',
-        closest: {
-          client: frameClient,
-          page: framePage,
-          scrollSize: {
-            scrollHeight: client.paddingBox.height,
-            scrollWidth: client.paddingBox.width,
+        closestScrollables: [
+          {
+            scrollableId: '//*[@id="root"]',
+            closest: {
+              client: frameClient,
+              page: framePage,
+              scrollSize: {
+                scrollHeight: client.paddingBox.height,
+                scrollWidth: client.paddingBox.width,
+              },
+              scroll: origin,
+              shouldClipSubject: options.shouldClipSubject,
+            },
           },
-          scroll: origin,
-          shouldClipSubject: options.shouldClipSubject,
-        },
+        ],
       });
 
     it('should not clip the frame if requested not to', () => {

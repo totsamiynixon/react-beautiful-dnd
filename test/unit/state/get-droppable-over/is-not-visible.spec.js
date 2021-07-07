@@ -45,20 +45,25 @@ it('should hit when inside subject, but outside the frame', () => {
       right: 100,
       bottom: 100,
     },
-    closest: {
-      borderBox: {
-        top: 0,
-        left: 0,
-        right: 50,
-        bottom: 50,
+    closestScrollables: [
+      {
+        scrollableId: '//*[@id="root"]',
+        closest: {
+          borderBox: {
+            top: 0,
+            left: 0,
+            right: 50,
+            bottom: 50,
+          },
+          scrollSize: {
+            scrollHeight: 100,
+            scrollWidth: 100,
+          },
+          scroll: { x: 0, y: 0 },
+          shouldClipSubject: true,
+        },
       },
-      scrollSize: {
-        scrollHeight: 100,
-        scrollWidth: 100,
-      },
-      scroll: { x: 0, y: 0 },
-      shouldClipSubject: true,
-    },
+    ],
   });
   const target: Position = { x: 20, y: 20 };
   const distance: Position = subtract(target, dragging.page.borderBox.center);
@@ -90,20 +95,25 @@ it('should not hit when inside subject, but outside the frame', () => {
       right: 100,
       bottom: 100,
     },
-    closest: {
-      borderBox: {
-        top: 0,
-        left: 0,
-        right: 50,
-        bottom: 50,
+    closestScrollables: [
+      {
+        scrollableId: '//*[@id="root"]',
+        closest: {
+          borderBox: {
+            top: 0,
+            left: 0,
+            right: 50,
+            bottom: 50,
+          },
+          scrollSize: {
+            scrollHeight: 100,
+            scrollWidth: 100,
+          },
+          scroll: { x: 0, y: 0 },
+          shouldClipSubject: true,
+        },
       },
-      scrollSize: {
-        scrollHeight: 100,
-        scrollWidth: 100,
-      },
-      scroll: { x: 0, y: 0 },
-      shouldClipSubject: true,
-    },
+    ],
   });
   const target: Position = { x: 60, y: 60 };
   const distance: Position = subtract(target, dragging.page.borderBox.center);
@@ -135,20 +145,25 @@ it('should not hit when outside subject and inside the frame (partially visible 
       right: 100,
       bottom: 100,
     },
-    closest: {
-      borderBox: {
-        top: 0,
-        left: 0,
-        right: 200,
-        bottom: 200,
+    closestScrollables: [
+      {
+        scrollableId: '//*[@id="root"]',
+        closest: {
+          borderBox: {
+            top: 0,
+            left: 0,
+            right: 200,
+            bottom: 200,
+          },
+          scrollSize: {
+            scrollHeight: 200,
+            scrollWidth: 200,
+          },
+          scroll: { x: 0, y: 0 },
+          shouldClipSubject: true,
+        },
       },
-      scrollSize: {
-        scrollHeight: 200,
-        scrollWidth: 200,
-      },
-      scroll: { x: 0, y: 0 },
-      shouldClipSubject: true,
-    },
+    ],
   });
   const target: Position = { x: 120, y: 120 };
   const distance: Position = subtract(target, dragging.page.borderBox.center);
@@ -180,20 +195,25 @@ it('should not hit when outside subject and inside the frame (invisible subject)
       right: 100,
       bottom: 100,
     },
-    closest: {
-      borderBox: {
-        top: 0,
-        left: 0,
-        right: 200,
-        bottom: 200,
+    closestScrollables: [
+      {
+        scrollableId: '//*[@id="root"]',
+        closest: {
+          borderBox: {
+            top: 0,
+            left: 0,
+            right: 200,
+            bottom: 200,
+          },
+          scrollSize: {
+            scrollHeight: 250,
+            scrollWidth: 250,
+          },
+          scroll: { x: 200, y: 200 },
+          shouldClipSubject: true,
+        },
       },
-      scrollSize: {
-        scrollHeight: 250,
-        scrollWidth: 250,
-      },
-      scroll: { x: 200, y: 200 },
-      shouldClipSubject: true,
-    },
+    ],
   });
   const target: Position = { x: 250, y: 250 };
   const distance: Position = subtract(target, dragging.page.borderBox.center);

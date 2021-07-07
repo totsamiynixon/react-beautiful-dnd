@@ -35,6 +35,7 @@ import { getOffsetForEndEdge } from '../util/get-offset-for-edge';
     const scroll: Position = patch(axis.line, 1);
     const scrolled: DroppableDimension = scrollDroppable(
       scrollableHome,
+      scrollableHome.frame[0].scrollableId,
       scroll,
     );
     const withoutScrolled: DroppableDimensionMap = {

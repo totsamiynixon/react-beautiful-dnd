@@ -181,21 +181,26 @@ describe('droppable is scrollable', () => {
       padding,
       border,
       windowScroll: preset.windowScroll,
-      closest: {
-        // we are using the smallFrameClient as a stand in for the elements
-        // actual borderBox which is cut off when it is a scroll container
-        borderBox: smallFrameClient.borderBox,
-        margin,
-        padding,
-        border,
-        // scroll width and height are based on the padding box
-        scrollSize: {
-          scrollWidth: bigClient.paddingBox.width,
-          scrollHeight: bigClient.paddingBox.height,
+      closestScrollables: [
+        {
+          scrollableId: '//*[@id="root"]',
+          closest: {
+            // we are using the smallFrameClient as a stand in for the elements
+            // actual borderBox which is cut off when it is a scroll container
+            borderBox: smallFrameClient.borderBox,
+            margin,
+            padding,
+            border,
+            // scroll width and height are based on the padding box
+            scrollSize: {
+              scrollWidth: bigClient.paddingBox.width,
+              scrollHeight: bigClient.paddingBox.height,
+            },
+            scroll: { x: 0, y: 0 },
+            shouldClipSubject: true,
+          },
         },
-        scroll: { x: 0, y: 0 },
-        shouldClipSubject: true,
-      },
+      ],
     });
     const registry: Registry = createRegistry();
     const registerSpy = jest.spyOn(registry.droppable, 'register');
@@ -245,20 +250,25 @@ describe('droppable is scrollable', () => {
       margin,
       padding,
       border,
-      closest: {
-        // we are using the smallFrameClient as a stand in for the elements
-        // actual borderBox which is cut off when it is a scroll container
-        borderBox: smallFrameClient.borderBox,
-        margin,
-        padding,
-        border,
-        scrollSize: {
-          scrollWidth: bigClient.paddingBox.width,
-          scrollHeight: bigClient.paddingBox.height,
+      closestScrollables: [
+        {
+          scrollableId: '//*[@id="root"]',
+          closest: {
+            // we are using the smallFrameClient as a stand in for the elements
+            // actual borderBox which is cut off when it is a scroll container
+            borderBox: smallFrameClient.borderBox,
+            margin,
+            padding,
+            border,
+            scrollSize: {
+              scrollWidth: bigClient.paddingBox.width,
+              scrollHeight: bigClient.paddingBox.height,
+            },
+            scroll,
+            shouldClipSubject: true,
+          },
         },
-        scroll,
-        shouldClipSubject: true,
-      },
+      ],
       windowScroll: preset.windowScroll,
     });
 
@@ -311,15 +321,20 @@ describe('parent of droppable is scrollable', () => {
       margin,
       padding,
       border,
-      closest: {
-        borderBox: smallFrameClient.borderBox,
-        margin,
-        padding,
-        border,
-        scrollSize,
-        scroll: { x: 0, y: 0 },
-        shouldClipSubject: true,
-      },
+      closestScrollables: [
+        {
+          scrollableId: '//*[@id="root"]',
+          closest: {
+            borderBox: smallFrameClient.borderBox,
+            margin,
+            padding,
+            border,
+            scrollSize,
+            scroll: { x: 0, y: 0 },
+            shouldClipSubject: true,
+          },
+        },
+      ],
       windowScroll: preset.windowScroll,
     });
     const registry: Registry = createRegistry();
@@ -366,18 +381,23 @@ describe('both droppable and parent is scrollable', () => {
       margin,
       padding,
       border,
-      closest: {
-        borderBox: smallFrameClient.borderBox,
-        margin,
-        padding,
-        border,
-        scrollSize: {
-          scrollWidth: bigClient.paddingBox.width,
-          scrollHeight: bigClient.paddingBox.height,
+      closestScrollables: [
+        {
+          scrollableId: '//*[@id="root"]',
+          closest: {
+            borderBox: smallFrameClient.borderBox,
+            margin,
+            padding,
+            border,
+            scrollSize: {
+              scrollWidth: bigClient.paddingBox.width,
+              scrollHeight: bigClient.paddingBox.height,
+            },
+            scroll: { x: 0, y: 0 },
+            shouldClipSubject: true,
+          },
         },
-        scroll: { x: 0, y: 0 },
-        shouldClipSubject: true,
-      },
+      ],
       windowScroll: preset.windowScroll,
     });
     const registry: Registry = createRegistry();
@@ -458,18 +478,23 @@ it('should capture the initial scroll of the closest scrollable', () => {
     margin,
     border,
     padding,
-    closest: {
-      borderBox: smallFrameClient.borderBox,
-      margin,
-      border,
-      padding,
-      scrollSize: {
-        scrollWidth: bigClient.paddingBox.width,
-        scrollHeight: bigClient.paddingBox.height,
+    closestScrollables: [
+      {
+        scrollableId: '//*[@id="root"]',
+        closest: {
+          borderBox: smallFrameClient.borderBox,
+          margin,
+          border,
+          padding,
+          scrollSize: {
+            scrollWidth: bigClient.paddingBox.width,
+            scrollHeight: bigClient.paddingBox.height,
+          },
+          scroll: frameScroll,
+          shouldClipSubject: true,
+        },
       },
-      scroll: frameScroll,
-      shouldClipSubject: true,
-    },
+    ],
     windowScroll: preset.windowScroll,
   });
 
@@ -522,15 +547,20 @@ it('should indicate if subject clipping is permitted based on the ignoreContaine
     margin,
     padding,
     border,
-    closest: {
-      borderBox: smallFrameClient.borderBox,
-      margin,
-      padding,
-      border,
-      scrollSize,
-      scroll: { x: 0, y: 0 },
-      shouldClipSubject: false,
-    },
+    closestScrollables: [
+      {
+        scrollableId: '//*[@id="root"]',
+        closest: {
+          borderBox: smallFrameClient.borderBox,
+          margin,
+          padding,
+          border,
+          scrollSize,
+          scroll: { x: 0, y: 0 },
+          shouldClipSubject: false,
+        },
+      },
+    ],
     windowScroll: preset.windowScroll,
   });
 

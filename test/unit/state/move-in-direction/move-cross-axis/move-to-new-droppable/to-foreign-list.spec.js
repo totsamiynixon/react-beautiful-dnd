@@ -129,6 +129,7 @@ import {
             );
             const scrolled: DroppableDimension = scrollDroppable(
               scrollable,
+              scrollable.frame[0].scrollableId,
               maxAllowableScroll,
             );
 
@@ -152,6 +153,7 @@ import {
             );
             const scrolled: DroppableDimension = scrollDroppable(
               scrollable,
+              scrollable.frame[0].scrollableId,
               pastMaxAllowableScroll,
             );
             const result: ?DragImpact = moveToNewDroppable({

@@ -68,6 +68,7 @@ import { emptyGroups } from '../../../../../../src/state/no-impact';
         );
         const scrolled: DroppableDimension = scrollDroppable(
           scrollable,
+          scrollable.frame[0].scrollableId,
           scroll,
         );
 

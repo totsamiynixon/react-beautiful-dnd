@@ -66,6 +66,7 @@ import { emptyGroups } from '../../../../../../src/state/no-impact';
       left: 0,
     },
   });
+  const scrollableId = '//*[@id="root"]';
   const foreign: DroppableDimension = getDroppableDimension({
     descriptor: {
       id: 'scrollable foriegn',
@@ -80,22 +81,27 @@ import { emptyGroups } from '../../../../../../src/state/no-impact';
       bottom: 10000,
       left: 0,
     },
-    closest: {
-      borderBox: {
-        top: 0,
-        right: 1000,
-        bottom: 1000,
-        left: 0,
+    closestScrollables: [
+      {
+        scrollableId,
+        closest: {
+          borderBox: {
+            top: 0,
+            right: 1000,
+            bottom: 1000,
+            left: 0,
+          },
+          shouldClipSubject: true,
+          scroll: origin,
+          scrollSize: {
+            scrollWidth: 2000,
+            scrollHeight: 2000,
+          },
+        },
       },
-      shouldClipSubject: true,
-      scroll: origin,
-      scrollSize: {
-        scrollWidth: 2000,
-        scrollHeight: 2000,
-      },
-    },
+    ],
   });
-  const frameBorderBox: Rect = getFrame(foreign).frameClient.borderBox;
+  const frameBorderBox: Rect = getFrame(foreign)[0].frameClient.borderBox;
 
   const inHome: DraggableDimension = getDraggableDimension({
     descriptor: {
@@ -232,7 +238,11 @@ import { emptyGroups } from '../../../../../../src/state/no-impact';
         axis.line,
         frameBorderBox[axis.end] + 1,
       );
-      const scrolled: DroppableDimension = scrollDroppable(foreign, newScroll);
+      const scrolled: DroppableDimension = scrollDroppable(
+        foreign,
+        scrollableId,
+        newScroll,
+      );
 
       it('should be setup correctly', () => {
         // verify visibility is as expected
