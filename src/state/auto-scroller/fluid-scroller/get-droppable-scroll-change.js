@@ -1,9 +1,10 @@
 // @flow
-import type { DroppableScrollChange, Position, Rect } from 'css-box-model';
+import type { Position, Rect } from 'css-box-model';
 import type {
   ScrollableId,
   Scrollable,
   DroppableDimension,
+  DroppableScrollChange,
 } from '../../../types';
 import getScroll from './get-scroll';
 import { canScrollDroppableScrollable } from '../can-scroll';
@@ -23,9 +24,9 @@ export default ({
   dragStartTime,
   shouldUseTimeDampening,
 }: Args): ?DroppableScrollChange => {
-  const frame: Scrollable[] = droppable.frame;
+  // check if we are able to scroll parent first
+  const reversedFrame: Scrollable[] = [...droppable.frame].reverse();
 
-  const reversedFrame = [...frame].reverse();
   for (const scrollable of reversedFrame) {
     const scrollableId: ScrollableId = scrollable.scrollableId;
     const scroll: ?Position = getScroll({

@@ -162,7 +162,7 @@ export default class Board extends Component<Props, State> {
     return (
       <React.Fragment>
         <DragDropContext onDragEnd={this.onDragEnd}>
-          {containerHeight ? (
+          {containerHeight || containerWidth ? (
             <ParentContainer height={containerHeight} width={containerWidth}>
               {board}
             </ParentContainer>
